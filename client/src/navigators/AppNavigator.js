@@ -9,9 +9,7 @@ const StackNavigator = createStackNavigator(
   },
   {
     initialRouteName: 'Home',
-    defaultNavigationOptions: {
-      title: 'Netcompany Lunsj',
-    },
+    headerMode: "none"
   },
 );
 
