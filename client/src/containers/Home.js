@@ -38,7 +38,7 @@ const _style = StyleSheet.create({
 export default HomeScreen = () => (
   <View style={_style.container}>
     <View style={_style.wrapper}>
-      <Text style={style.largeHeaderText}>God morgen</Text>
+      <Text style={style.largeHeaderText}>God morgen, </Text>
       <Text style={_style.redHeaderText}>bekreft lunsj med QR</Text>
 
       <TouchableOpacity>
