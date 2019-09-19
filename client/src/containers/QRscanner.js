@@ -1,5 +1,7 @@
 import React, {useRef} from 'react';
 import {View, StyleSheet, Dimensions} from 'react-native';
+
+// https://blog.hackajob.co/how-to-build-a-qrcode-reader-using-reactnative/
 import QR from 'react-native-qrcode-scanner';
 
 const style = StyleSheet.create({

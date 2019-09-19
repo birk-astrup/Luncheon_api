@@ -68,7 +68,6 @@ export default ({navigation}) => {
         {!hasPaid ? (
           <>
             <Text style={_style.redHeaderText}>bekreft lunsj med QR</Text>
-
             <TouchableOpacity
               onPress={() => navigation.navigate('QRscanner')}
               style={_style.box}>
