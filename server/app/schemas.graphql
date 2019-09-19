@@ -1,9 +1,21 @@
 
+query = """
+    type Query {
+
+    }
+"""
+
 user = """
     type User {
         id: ID!
         username: String!
         password: String!
+        registered_for_lunch: [timestamp]
+    }
+"""
 
+timestamp = """
+    type Timestamp {
+        id: ID!
     }
 """

@@ -10,6 +10,7 @@ pylint = "*"
 ariadne = "*"
 flask = "*"
 environs = "*"
+flask-pymongo = "*"
 
 [requires]
 python_version = "3.7"

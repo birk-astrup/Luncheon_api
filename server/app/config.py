@@ -19,5 +19,9 @@ class Config(object):
         "PROD_PORT", default=env.int("DEV_PORT")
     )
 
+    MONGO_URI = env.str(
+        "PROD_DB", default=env.str("DEV_HOST")
+    )
+
 dev_config = create_config_obj("DEV_")
 prod_config = create_config_obj("PROD_")

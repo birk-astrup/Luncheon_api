@@ -1,18 +1,21 @@
-from flask import Flask, request, jsonify
-import os
-from config import dev_config, prod_config
-from ariadne import QueryType, graphql_sync, make_executable_schema, gql, load_schema_from_path
+from ariadne import ObjectType, graphql_sync, make_executable_schema, gql, load_schema_from_path
 from ariadne.constants import PLAYGROUND_HTML
+from config import dev_config, prod_config
+from flask import Flask, request, jsonify
+from flask_pymongo import PyMongo
+import os
 
 
 def create_app(config = dev_config):
 
+    
+
     type_defs = load_schema_from_path('schemas.graphql')
 
-    query = QueryType()
+    query = ObjectType("Query")
 
-    @query.field("hello")
-    def resolve_hello(_, info):
+    @query.field("User")
+    def resolve_user(_, info):
         request = info.context
         user_agent = request.headers.get("User-Agent", "Guest")
         return "Hello, %s!" % user_agent
@@ -23,6 +26,8 @@ def create_app(config = dev_config):
     if "FLASK_ENV" in os.environ and os.environ["FLASK_ENV"] == "production":
         config = prod_config
     app.config.from_object(config)
+
+    mongo = PyMongo(app)
 
     @app.route("/graphql", methods=["GET"])
     def graphql_playground():
