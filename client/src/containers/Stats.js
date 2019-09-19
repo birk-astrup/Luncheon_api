@@ -3,7 +3,7 @@ import {Text, View} from 'react-native';
 
 import style from '../styles/main';
 
-export default HomeScreen = () => {
+export default () => {
   return (
     <View style={style.background}>
       <Text style={style.largeHeaderText}>Stats</Text>

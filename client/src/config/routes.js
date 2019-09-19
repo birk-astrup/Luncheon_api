@@ -11,27 +11,27 @@ import Calendar from '../containers/Calendar';
 // Home Screen, that handles QR scanner and message
 const HomeStack = createStackNavigator(
   {
-    Home: { screen: Home },
-    QRscanner: { screen: QRscanner },
+    Home: {screen: Home},
+    QRscanner: {screen: QRscanner},
   },
   {
     initialRouteName: 'Home',
-    headerMode: { header: null }
-  }
+    headerMode: {header: null},
+  },
 );
 
 // Main routes for the bottomTabNavigator
 const routes = {
   Calendar: {
-    screen: Calendar
+    screen: Calendar,
   },
   Home: {
-    screen: HomeStack
+    screen: HomeStack,
   },
   Stats: {
-    screen: Stats
-  }
+    screen: Stats,
+  },
 };
 
-const navigator = createBottomTabNavigator(routes, navConfig)
-export default navigator
+const navigator = createBottomTabNavigator(routes, navConfig);
+export default navigator;

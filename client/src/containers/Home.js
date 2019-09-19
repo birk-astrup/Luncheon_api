@@ -2,7 +2,7 @@ import React from 'react';
 import Icon from 'react-native-vector-icons/AntDesign';
 import {Text, View, TouchableOpacity, StyleSheet} from 'react-native';
 
-import style from '../styles/main'
+import style from '../styles/main';
 
 const _style = StyleSheet.create({
   box: {
@@ -12,7 +12,7 @@ const _style = StyleSheet.create({
     backgroundColor: '#E46053',
     position: 'absolute',
     left: '50%',
-    transform: [{translateX : -50}],
+    transform: [{translateX: -50}],
   },
   container: {
     ...style.background,
@@ -24,7 +24,7 @@ const _style = StyleSheet.create({
     paddingRight: 65,
   },
   redHeaderText: {
-    ...style.largeHeaderText, 
+    ...style.largeHeaderText,
     ...style.redText,
   },
   wrapper: {
@@ -32,10 +32,10 @@ const _style = StyleSheet.create({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
-  }
-})
+  },
+});
 
-export default HomeScreen = () => (
+export default () => (
   <View style={_style.container}>
     <View style={_style.wrapper}>
       <Text style={style.largeHeaderText}>God morgen, </Text>
@@ -43,7 +43,7 @@ export default HomeScreen = () => (
 
       <TouchableOpacity>
         <View style={_style.box}>
-          <Icon name='qrcode' size={90}/>
+          <Icon name={'qrcode'} size={90} />
         </View>
       </TouchableOpacity>
     </View>
