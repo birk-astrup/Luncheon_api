@@ -7,6 +7,10 @@ verify_ssl = true
 pylint = "*"
 
 [packages]
+ariadne = "*"
+flask = "*"
+environs = "*"
+flask-pymongo = "*"
 
 [requires]
 python_version = "3.7"
