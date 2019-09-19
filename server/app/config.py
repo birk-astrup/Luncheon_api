@@ -12,12 +12,11 @@ def create_config_obj(env_setting):
     return new_config
 
 class Config(object):
-    DEBUG = False
     HOST = env.str(
-        "HOST", default=env.str("DEV_HOST")
+        "PROD_HOST", default=env.str("DEV_HOST")
     )
     PORT = env.int(
-        "PORT", default=env.int("DEV_PORT")
+        "PROD_PORT", default=env.int("DEV_PORT")
     )
 
 dev_config = create_config_obj("DEV_")
