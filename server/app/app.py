@@ -1,17 +1,13 @@
 from flask import Flask, request, jsonify
 import os
-from app.config import dev_config, prod_config
-from ariadne import QueryType, graphql_sync, make_executable_schema, gql
+from config import dev_config, prod_config
+from ariadne import QueryType, graphql_sync, make_executable_schema, gql, load_schema_from_path
 from ariadne.constants import PLAYGROUND_HTML
 
 
 def create_app(config = dev_config):
 
-    type_defs = gql(""" 
-        type Query {
-            hello: String!
-        }
-    """)
+    type_defs = load_schema_from_path('schemas.graphql')
 
     query = QueryType()
 
