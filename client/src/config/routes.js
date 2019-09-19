@@ -8,6 +8,11 @@ import QRscanner from '../containers/QRscanner';
 import Stats from '../containers/Stats';
 import Calendar from '../containers/Calendar';
 
+const handlePress = ({navigation}) => {
+  navigation.popToTop();
+  navigation.navigate(navigation.state.routeName);
+};
+
 // Home Screen, that handles QR scanner and message
 const HomeStack = createStackNavigator(
   {
@@ -27,6 +32,10 @@ const routes = {
   },
   Home: {
     screen: HomeStack,
+    navigationOptions: {
+      title: 'Home',
+      tabBarOnPress: handlePress,
+    },
   },
   Stats: {
     screen: Stats,

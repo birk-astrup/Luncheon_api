@@ -10,7 +10,6 @@ const _style = StyleSheet.create({
     width: 90,
     borderRadius: 5,
     backgroundColor: '#E46053',
-    position: 'absolute',
     left: '50%',
     transform: [{translateX: -50}],
   },
@@ -28,6 +27,7 @@ const _style = StyleSheet.create({
     ...style.redText,
   },
   wrapper: {
+    position: 'relative',
     height: 375,
     display: 'flex',
     flexDirection: 'column',
@@ -35,16 +35,16 @@ const _style = StyleSheet.create({
   },
 });
 
-export default () => (
+export default ({navigation}) => (
   <View style={_style.container}>
     <View style={_style.wrapper}>
       <Text style={style.largeHeaderText}>God morgen, </Text>
       <Text style={_style.redHeaderText}>bekreft lunsj med QR</Text>
 
-      <TouchableOpacity>
-        <View style={_style.box}>
-          <Icon name={'qrcode'} size={90} />
-        </View>
+      <TouchableOpacity
+        onPress={() => navigation.navigate('QRscanner')}
+        style={_style.box}>
+        <Icon name={'qrcode'} size={90} />
       </TouchableOpacity>
     </View>
   </View>
