@@ -1,12 +1,30 @@
-import React from 'react';
-import {Text, View} from 'react-native';
+import React, {useRef} from 'react';
+import {View, StyleSheet, Dimensions} from 'react-native';
+import QR from 'react-native-qrcode-scanner';
 
-import style from '../styles/main';
+const style = StyleSheet.create({
+  container: {},
+});
 
-export default () => {
+export default ({navigation}) => {
+  const scanner = useRef(null);
+
+  const onSuccess = async event => {
+    await navigation.navigate('Home', {
+      data: event.data,
+      scanner,
+    });
+  };
+
   return (
-    <View style={style.background}>
-      <Text style={style.largeHeaderText}>Scanner</Text>
+    <View style={style.container}>
+      <QR
+        onRead={onSuccess}
+        showMarker={true}
+        checkAndroid6Permissions={true}
+        ref={scanner}
+        cameraStyle={{height: Dimensions.get('window').height}}
+      />
     </View>
   );
 };

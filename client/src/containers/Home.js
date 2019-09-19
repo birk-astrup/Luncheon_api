@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import Icon from 'react-native-vector-icons/AntDesign';
 import {Text, View, TouchableOpacity, StyleSheet} from 'react-native';
 
@@ -11,7 +11,13 @@ const _style = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: '#E46053',
     left: '50%',
-    transform: [{translateX: -50}],
+    transform: [{translateX: -45}],
+  },
+  checkmark: {
+    height: 45,
+    width: 45,
+    left: '50%',
+    transform: [{translateX: -22.5}],
   },
   container: {
     ...style.background,
@@ -26,6 +32,10 @@ const _style = StyleSheet.create({
     ...style.largeHeaderText,
     ...style.redText,
   },
+  greenHeaderText: {
+    ...style.largeHeaderText,
+    ...style.greenText,
+  },
   wrapper: {
     position: 'relative',
     height: 375,
@@ -35,17 +45,45 @@ const _style = StyleSheet.create({
   },
 });
 
-export default ({navigation}) => (
-  <View style={_style.container}>
-    <View style={_style.wrapper}>
-      <Text style={style.largeHeaderText}>God morgen, </Text>
-      <Text style={_style.redHeaderText}>bekreft lunsj med QR</Text>
+export default ({navigation}) => {
+  const [data, setData] = useState(null);
+  const [hasPaid, setHasPaid] = useState(false);
 
-      <TouchableOpacity
-        onPress={() => navigation.navigate('QRscanner')}
-        style={_style.box}>
-        <Icon name={'qrcode'} size={90} />
-      </TouchableOpacity>
+  // Recives data from scanner
+  useEffect(() => {
+    const dataFromQR = navigation.getParam('data', 'No data recived');
+    setData(dataFromQR);
+  }, [navigation]);
+
+  // Mounting cycle
+  useEffect(() => {
+    data === 'www.netcompany.com' && setHasPaid(true);
+  }, [data]);
+
+  return (
+    <View style={_style.container}>
+      <View style={_style.wrapper}>
+        <Text style={style.largeHeaderText}>God morgen, </Text>
+
+        {!hasPaid ? (
+          <>
+            <Text style={_style.redHeaderText}>bekreft lunsj med QR</Text>
+
+            <TouchableOpacity
+              onPress={() => navigation.navigate('QRscanner')}
+              style={_style.box}>
+              <Icon name={'qrcode'} size={90} />
+            </TouchableOpacity>
+          </>
+        ) : (
+          <>
+            <Text style={_style.greenHeaderText}>lunsj bekreftet</Text>
+            <View style={_style.checkmark}>
+              <Icon name={'checkcircle'} size={45} color={'#5CBDAA'} />
+            </View>
+          </>
+        )}
+      </View>
     </View>
-  </View>
-);
+  );
+};
