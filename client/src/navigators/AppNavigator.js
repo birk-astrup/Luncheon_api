@@ -1,16 +1,9 @@
 import {createAppContainer} from 'react-navigation';
-import {createStackNavigator} from 'react-navigation-stack';
+import {createBottomTabNavigator} from 'react-navigation-tabs';
 
-import HomeScreen from '../containers/Home';
+import routes from '../config/routes';
+import navConfig from '../config/navConfig';
 
-const StackNavigator = createStackNavigator(
-  {
-    Home: HomeScreen,
-  },
-  {
-    initialRouteName: 'Home',
-    headerMode: "none"
-  },
-);
+const bottomNavigation = createBottomTabNavigator(routes, navConfig)
 
-export default createAppContainer(StackNavigator);
+export default createAppContainer(bottomNavigation);
