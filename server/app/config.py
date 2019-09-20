@@ -22,6 +22,10 @@ class Config(object):
     MONGO_URI = env.str(
         "PROD_DB", default=env.str("DEV_HOST")
     )
+    
+    SECRET_KEY = env.str(
+        "SECRET_KEY"
+    )
 
 dev_config = create_config_obj("DEV_")
 prod_config = create_config_obj("PROD_")

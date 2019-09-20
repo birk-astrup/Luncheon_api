@@ -11,6 +11,9 @@ ariadne = "*"
 flask = "*"
 environs = "*"
 flask-pymongo = "*"
+python-jose-cryptodome = "*"
+flask-cors = "*"
+six = "*"
 
 [requires]
 python_version = "3.7"

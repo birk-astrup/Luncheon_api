@@ -1,8 +1,10 @@
 from ariadne import ObjectType, graphql_sync, make_executable_schema, load_schema_from_path, ScalarType
 from ariadne.constants import PLAYGROUND_HTML
 from app.config import dev_config, prod_config
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, _request_ctx_stack
+from flask_cors import cross_origin
 from flask_pymongo import PyMongo
+from jose import jwt
 import os
 
 
