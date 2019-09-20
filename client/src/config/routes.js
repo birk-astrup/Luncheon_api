@@ -3,7 +3,7 @@ import {createStackNavigator} from 'react-navigation-stack';
 import navConfig from './navConfig';
 
 import Home from '../containers/Home';
-import QRscanner from '../containers/QRscanner';
+import QRscanner from '../components/QRscanner';
 
 import Stats from '../containers/Stats';
 import Calendar from '../containers/Calendar';
