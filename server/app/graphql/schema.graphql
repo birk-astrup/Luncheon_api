@@ -14,5 +14,7 @@ type User {
 
 type Timestamp {
     id: ID!
-    registered: String!
+    registered: Datetime!
 }
+
+scalar Datetime
