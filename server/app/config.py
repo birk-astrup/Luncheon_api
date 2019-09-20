@@ -25,7 +25,11 @@ class Config(object):
     
     SECRET_KEY = env.str("SECRET_KEY")
 
-    DOMAIN = env.str("DOMAIN")
+    DOMAIN = env.str("AUTH0_DOMAIN")
+
+    ALGORITHMS = env.list("ALGORITHMS")
+
+    API_AUDIENCE = env.str("API_AUDIENCE")
 
 dev_config = create_config_obj("DEV_")
 prod_config = create_config_obj("PROD_")
