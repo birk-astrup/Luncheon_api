@@ -23,9 +23,9 @@ class Config(object):
         "PROD_DB", default=env.str("DEV_HOST")
     )
     
-    SECRET_KEY = env.str(
-        "SECRET_KEY"
-    )
+    SECRET_KEY = env.str("SECRET_KEY")
+
+    DOMAIN = env.str("DOMAIN")
 
 dev_config = create_config_obj("DEV_")
 prod_config = create_config_obj("PROD_")
