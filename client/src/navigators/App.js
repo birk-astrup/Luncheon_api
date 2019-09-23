@@ -1,6 +1,6 @@
 import {createBottomTabNavigator} from 'react-navigation-tabs';
 import {createStackNavigator} from 'react-navigation-stack';
-import navConfig from './navConfig';
+import navConfig from '../config/navigation';
 
 import Home from '../containers/Home';
 import QRscanner from '../components/QRscanner';

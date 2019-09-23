@@ -8,17 +8,22 @@ const init = {
 
 const reducer = (state, action) => {
   switch (action.type) {
-    case 'TODAYS_STATE':
+    case 'SET_ACCESS_TOKEN':
       return {
         ...state,
-        today: action.payload,
+        accessToken: action.payload,
+      };
+    case 'SET_PAY_STATUS':
+      return {
+        ...state,
+        payStatus: action.payload,
       };
     default:
       return state;
   }
 };
 
-export const LunsjProvider = props => {
+export const Provider = props => {
   const [state, dispatch] = useReducer(reducer, init);
   const value = {state, dispatch};
   return <Store.Provider value={value}>{props.children}</Store.Provider>;

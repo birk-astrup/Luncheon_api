@@ -1,9 +1,9 @@
 import React from 'react';
-import AppNavigator from './navigators/AppNavigator';
-import {LunsjProvider} from './store';
+import AppNavigator from './navigators';
+import {Provider} from './store';
 
-export default App = () => (
-  <LunsjProvider>
-    <AppNavigator/>
-  </LunsjProvider>
+export default () => (
+  <Provider>
+    <AppNavigator />
+  </Provider>
 );
