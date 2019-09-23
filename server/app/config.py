@@ -3,27 +3,28 @@ from environs import Env
 env = Env()
 env.read_env()
 
-def create_config_obj(env_setting):
-    new_config = Config()
-    with env.prefixed(env_setting):
-        new_config.PORT = env.str("PORT")
-        new_config.DEBUG = env.bool("DEBUG", default=False)
-        new_config.TESTING = env.bool("TESTING", default=False)
-        new_config.MONGO_URI = env.str("DB")
-    return new_config
-
 class Config(object):
-    HOST = env.str("PROD_HOST", default=env.str("DEV_HOST"))
 
-    PORT = env.int("PROD_PORT", default=env.int("DEV_PORT"))
-    
-    SECRET_KEY = env.str("SECRET_KEY", default="None")
+    AUDIENCE = env.str("AUDIENCE")
+    ALGORITHMS = env.list("ALGORITHMS", subcast=str)
+    DOMAIN = env.str("DOMAIN")
 
-    DOMAIN = env.str("API_DOMAIN")
+    def __init__(self, host, port, dbUri, debug = False):
+        self.HOST = host
+        self.PORT = port
+        self.MONGO_URI = dbUri
+        self.DEBUG = debug
+        
 
-    ALGORITHMS = env.list("ALGORITHMS")
-
-    API_AUDIENCE = env.str("API_AUDIENCE")
+def create_config_obj(env_setting):
+    with env.prefixed(env_setting):
+        new_config = Config(
+            env.str("HOST"),
+            env.str("PORT"),
+            env.str("DB"),
+            env.bool("DEBUG", default=False)
+        )
+    return new_config
 
 dev_config = create_config_obj("DEV_")
 prod_config = create_config_obj("PROD_")

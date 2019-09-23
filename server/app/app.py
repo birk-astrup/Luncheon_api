@@ -74,7 +74,7 @@ def create_app(config = dev_config):
         @functools.wraps(f)
         def decorated(*args, **kwargs):
             token = get_token_auth_header()
-            jsonurl = urlopen("https://"+app.config.DOMAIN+"/.well-known/jwks.json")
+            jsonurl = urlopen("https://"+config.DOMAIN+"/.well-known/jwks.json")
             jwks = json.loads(jsonurl.read())
             unverified_header = jwt.get_unverified_header(token)
             rsa_key = {}
@@ -92,9 +92,9 @@ def create_app(config = dev_config):
                     payload = jwt.decode(
                         token,
                         rsa_key,
-                        algorithms=app.config.ALGORITHMS,
-                        audience=app.config.API_AUDIENCE,
-                        issuer="https://"+app.config.DOMAIN+"/"
+                        algorithms=config.ALGORITHMS,
+                        audience=config.AUDIENCE,
+                        issuer="https://"+config.DOMAIN+"/"
                     )
                 except jwt.ExpiredSignatureError:
                     raise AuthError({
@@ -160,7 +160,8 @@ def create_app(config = dev_config):
         
         raise AuthError({ 
             "code": "Unauthorized",
-            "description": "You don't have access to this resource"})
+            "description": "You don't have access to this resource"
+            }, 401)
     
     
     @app.route("/graphql", methods=["POST"])
