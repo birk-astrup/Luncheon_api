@@ -9,7 +9,7 @@ import functools
 from jose import jwt
 import json
 import os
-from urllib import urlopen
+from urllib.request import urlopen
 
 
 def create_app(config = dev_config):
