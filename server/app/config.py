@@ -6,7 +6,7 @@ env.read_env()
 class Config(object):
 
     AUDIENCE = env.str("AUDIENCE")
-    ALGORITHMS = env.list("ALGORITHMS", subcast=str)
+    ALGORITHM = env.str("ALGORITHM")
     DOMAIN = env.str("DOMAIN")
 
     def __init__(self, host, port, dbUri, debug = False):
@@ -22,7 +22,7 @@ def create_config_obj(env_setting):
             env.str("HOST"),
             env.str("PORT"),
             env.str("DB"),
-            env.bool("DEBUG", default=False)
+            env.bool("DEBUG")
         )
     return new_config
 

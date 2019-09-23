@@ -78,24 +78,26 @@ def create_app(config = dev_config):
             jwks = json.loads(jsonurl.read())
             unverified_header = jwt.get_unverified_header(token)
             rsa_key = {}
-            for key in jwks["kid"]:
-                rsa_key = {
-                    "kty": key["kty"],
-                    "kid": key["kid"],
-                    "use": key["use"],
-                    "n": key["n"],
-                    "e": key["e"]
-                }
+            for key in jwks["keys"]:
+                if key["kid"] == unverified_header["kid"]:
+                    rsa_key = {
+                        "kty": key["kty"],
+                        "kid": key["kid"],
+                        "use": key["use"],
+                        "n": key["n"],
+                        "e": key["e"]
+                    }
             
             if rsa_key: 
                 try:
                     payload = jwt.decode(
-                        token,
-                        rsa_key,
-                        algorithms=config.ALGORITHMS,
-                        audience=config.AUDIENCE,
-                        issuer="https://"+config.DOMAIN+"/"
+                    token,
+                    rsa_key,
+                    algorithms=config.ALGORITHM,
+                    audience=config.AUDIENCE,
+                    issuer="https://"+config.DOMAIN+"/"
                     )
+                    
                 except jwt.ExpiredSignatureError:
                     raise AuthError({
                         "code": "token_expired",
