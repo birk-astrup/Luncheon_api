@@ -5,7 +5,7 @@ from app.errors import AuthError
 from flask import Flask, request, jsonify, _request_ctx_stack
 from flask_cors import cross_origin
 from flask_pymongo import PyMongo
-import functools
+from functools import wraps
 from jose import jwt
 import json
 import os
@@ -71,7 +71,7 @@ def create_app(config = dev_config):
     
     def requires_auth(f):
         """Determines if the Access Token is valid"""
-        @functools.wraps(f)
+        @wraps(f)
         def decorated(*args, **kwargs):
             token = get_token_auth_header()
             jsonurl = urlopen("https://"+config.DOMAIN+"/.well-known/jwks.json")
@@ -118,10 +118,8 @@ def create_app(config = dev_config):
                 
                 _request_ctx_stack.top.current_user = payload
                 return f(*args, **kwargs)
-            raise AuthError({
-                "code": "invalid_header",
-                "description": "Unable to find appropriate key"
-                }, 401)
+            raise AuthError({"code": "invalid_header",
+                        "description": "Unable to find appropriate key"}, 401)
         return decorated
     
     def requires_scope(required_scope):
@@ -157,15 +155,8 @@ def create_app(config = dev_config):
     @cross_origin(headers=["Content-type", "Authorization"])
     @requires_auth
     def graphql_playground():
-        if requires_scope("read:all"):
-            return PLAYGROUND_HTML, 200
-        
-        raise AuthError({ 
-            "code": "Unauthorized",
-            "description": "You don't have access to this resource"
-            }, 401)
-    
-    
+        return PLAYGROUND_HTML, 200
+     
     @app.route("/graphql", methods=["POST"])
     @cross_origin(headers=["Content-type", "Authorization"])
     @requires_auth
