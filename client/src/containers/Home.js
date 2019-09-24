@@ -4,6 +4,9 @@ import {Text, View, TouchableOpacity, StyleSheet} from 'react-native';
 
 import style from '../styles/main';
 
+import Auth0 from '../utils/auth0';
+import SInfo from 'react-native-sensitive-info';
+
 const _style = StyleSheet.create({
   box: {
     height: 90,
@@ -46,8 +49,19 @@ const _style = StyleSheet.create({
 });
 
 export default ({navigation}) => {
+  const [name, setName] = useState(null);
   const [data, setData] = useState(null);
   const [hasPaid, setHasPaid] = useState(false);
+
+  const getName = async () => {
+    const token = await SInfo.getItem('accessToken', {});
+    const user = await Auth0.auth.userInfo({token});
+    try {
+      setName(user.nickname);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   // Recives data from scanner
   useEffect(() => {
@@ -58,12 +72,13 @@ export default ({navigation}) => {
   // Mounting cycle
   useEffect(() => {
     data === 'www.netcompany.com' && setHasPaid(true);
+    getName();
   }, [data]);
 
   return (
     <View style={_style.container}>
       <View style={_style.wrapper}>
-        <Text style={style.largeHeaderText}>God morgen, </Text>
+        <Text style={style.largeHeaderText}>God morgen, {name}</Text>
 
         {!hasPaid ? (
           <>
