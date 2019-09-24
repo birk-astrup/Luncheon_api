@@ -2,14 +2,16 @@ from ariadne import ObjectType, graphql_sync, make_executable_schema, load_schem
 from ariadne.constants import PLAYGROUND_HTML
 from app.config import dev_config, prod_config
 from app.errors import AuthError
+from app.resolvers import resolve_add_user
 from flask import Flask, request, jsonify, _request_ctx_stack
 from flask_cors import cross_origin
-from flask_pymongo import PyMongo
+from .extensions import mongo
 from functools import wraps
 from jose import jwt
 import json
 import os
 from urllib.request import urlopen
+import uuid
 
 
 def create_app(config = dev_config):
@@ -17,9 +19,30 @@ def create_app(config = dev_config):
     
 
     type_defs = load_schema_from_path('app/graphql/schema.graphql')
-
     query = ObjectType("Query")
+    mutation = ObjectType("Mutation")
     datetime = ScalarType("Datetime")
+
+
+    @datetime.serializer
+    def serialize_datetime(value):
+        """Serialize custom datetime scalar for graphql-schema."""
+        return value.isoformat()
+
+    @query.field("node")
+    def resolve_node(_, info):
+        print(info)
+
+    @mutation.field("createUser")
+    def resolve_add_user(_, info, user):
+        request = info.context["request"]
+        print(request)
+        return user
+
+
+    
+    schema = make_executable_schema(type_defs, query)
+
 
     app = Flask(__name__)
     
@@ -27,7 +50,7 @@ def create_app(config = dev_config):
         config = prod_config
     app.config.from_object(config)
 
-    mongo = PyMongo(app)
+    mongo.init_app(app)
 
     @app.errorhandler(AuthError)
     def handle_auth_error(exception):
@@ -140,26 +163,16 @@ def create_app(config = dev_config):
         
         return False
 
-    @datetime.serializer
-    def serialize_datetime(value):
-        """Serialize custom datetime scalar for graphql-schema."""
-        return value.isoformat()
-
-    @query.field("User")
-    def resolve_user(_, info):
-        print(info)
-    
-    schema = make_executable_schema(type_defs, query)
 
     @app.route("/graphql", methods=["GET"])
-    @cross_origin(headers=["Content-type", "Authorization"])
-    @requires_auth
+    #@cross_origin(headers=["Content-type", "Authorization"])
+    #@requires_auth
     def graphql_playground():
         return PLAYGROUND_HTML, 200
      
     @app.route("/graphql", methods=["POST"])
-    @cross_origin(headers=["Content-type", "Authorization"])
-    @requires_auth
+    #@cross_origin(headers=["Content-type", "Authorization"])
+    #@requires_auth
     def graphql_server():
         data = request.get_json()
 
