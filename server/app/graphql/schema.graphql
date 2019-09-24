@@ -1,0 +1,20 @@
+type Query {
+    User: [User]
+    Timestamp: [Timestamp]
+}
+
+type User {
+    
+    id: ID!
+    username: String!
+    email: String!
+    password: String!
+    registered_for_lunch: [Timestamp]
+}
+
+type Timestamp {
+    id: ID!
+    registered: Datetime!
+}
+
+scalar Datetime
