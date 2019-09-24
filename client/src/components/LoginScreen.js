@@ -1,8 +1,12 @@
 import React from 'react';
 import {View, Button, AsyncStorage, StyleSheet, Alert} from 'react-native';
-
-import Auth0 from '../utils/auth';
-import {AUTHO_SCOPE, AUTH0_AUDIENCE} from 'react-native-dotenv';
+import {
+  AUTHO_SCOPE,
+  AUTH0_AUDIENCE,
+  AUTH0_CLIENT_ID,
+  AUTH0_DOMAIN,
+} from 'react-native-dotenv';
+import Auth0 from 'react-native-auth0';
 
 const styles = StyleSheet.create({
   container: {
@@ -17,20 +21,20 @@ export default ({navigation}) => {
     navigation.navigate('App');
   };
 
-  const _signInAsync = async () => {
-    console.log(AUTHO_SCOPE, AUTH0_AUDIENCE);
-    try {
-      let credentials = await Auth0.webAuth.authorize({
+  const _signInAsync = () => {
+    new Auth0({
+      clientId: AUTH0_CLIENT_ID,
+      domain: AUTH0_DOMAIN,
+    }).webAuth
+      .authorize({
         scope: AUTHO_SCOPE,
         audience: AUTH0_AUDIENCE,
-      });
-
-      console.log(credentials);
-
-      if (credentials) {
+      })
+      .then(cred => {
+        console.log(cred);
         Alert.alert(
           'Success',
-          'AccessToken: ' + credentials.accessToken,
+          'AccessToken: ' + cred.accessToken,
           [
             {
               text: 'OK',
@@ -39,11 +43,10 @@ export default ({navigation}) => {
           ],
           {cancelable: false},
         );
-        await AsyncStorage.setItem('userToken', credentials.accessToken);
-      }
-    } catch (e) {
-      console.log(e);
-    }
+      })
+      .catch(err => console.log(err));
+
+    // AsyncStorage.setItem('userToken', credentials.accessToken);
   };
 
   return (
