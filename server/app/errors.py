@@ -2,4 +2,7 @@ class AuthError(Exception):
     def __init__(self, error, status_code):
         self.error = error
         self.status_code = status_code
-    
+
+class CreateUserError(Exception):
+    def __init__(self, message):
+        self.message = message

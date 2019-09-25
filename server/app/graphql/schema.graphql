@@ -1,10 +1,11 @@
+
 interface Node {
     id: ID!
 }
 
 type User implements Node {
     id: ID!
-    username: String!
+    nickname: String!
     email: String!
     registered_for_lunch: [Timestamp]
 }
@@ -16,13 +17,11 @@ type Timestamp implements Node {
 
 type Query {
     node(id: ID!): Node
+    getUsers: [User]
 }
 
 type Mutation {
-    createUser(
-        username: String!,
-        email: String!
-        ): UserPayload!
+    createUser(nickname: String!, email: String!): UserPayload!
 }
 
 type UserPayload {
@@ -32,7 +31,7 @@ type UserPayload {
 }
 
 type Error {
-    message: String!
+    message: String
 }
 
 scalar Datetime

@@ -1,14 +1,14 @@
 from ariadne import ObjectType, graphql_sync, make_executable_schema, load_schema_from_path, ScalarType
 from ariadne.constants import PLAYGROUND_HTML
 from app.config import dev_config, prod_config
-from app.errors import AuthError
-from app.resolvers import resolve_add_user
+from app.errors import AuthError, CreateUserError
 from flask import Flask, request, jsonify, _request_ctx_stack
 from flask_cors import cross_origin
 from .extensions import mongo
 from functools import wraps
 from jose import jwt
 import json
+from app.models import User, UserPayload
 import os
 from urllib.request import urlopen
 import uuid
@@ -16,13 +16,20 @@ import uuid
 
 def create_app(config = dev_config):
 
-    
+    app = Flask(__name__)
+
+    if "FLASK_ENV" in os.environ and os.environ["FLASK_ENV"] == "production":
+        config = prod_config
+    app.config.from_object(config)
+
+    mongo.init_app(app)
 
     type_defs = load_schema_from_path('app/graphql/schema.graphql')
     query = ObjectType("Query")
     mutation = ObjectType("Mutation")
     datetime = ScalarType("Datetime")
 
+    bindables = [query, mutation]
 
     @datetime.serializer
     def serialize_datetime(value):
@@ -31,26 +38,27 @@ def create_app(config = dev_config):
 
     @query.field("node")
     def resolve_node(_, info):
-        print(info)
+        return _.node
 
     @mutation.field("createUser")
-    def resolve_add_user(_, info, user):
-        request = info.context["request"]
-        print(request)
-        return user
+    def resolve_add_user(_, info, nickname: str, email: str):
+        
+        try:
+            id = uuid.uuid4()
+            user = {"id": id, "nickname": nickname, "email": email }
+            mongo.db.users.insert_one(user)
+            status = True
+            error = None
+        
+        except Exception:
+            status = False
+            user = None
+            error = {"message": "could not insert into database"}
 
+        return {"status": status, "error": error, "user": user}
+        
 
-    
-    schema = make_executable_schema(type_defs, query)
-
-
-    app = Flask(__name__)
-    
-    if "FLASK_ENV" in os.environ and os.environ["FLASK_ENV"] == "production":
-        config = prod_config
-    app.config.from_object(config)
-
-    mongo.init_app(app)
+    schema = make_executable_schema(type_defs, bindables)
 
     @app.errorhandler(AuthError)
     def handle_auth_error(exception):
@@ -179,7 +187,7 @@ def create_app(config = dev_config):
         success, result = graphql_sync(
             schema,
             data,
-            context_value=request,
+            context_value=None,
             debug=app.debug
         )
         status_code = 200 if success else 400
