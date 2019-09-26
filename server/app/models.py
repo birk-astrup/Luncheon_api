@@ -1,6 +1,8 @@
 from datetime import datetime
 import uuid
 
+#TODO Not sure this module is needed
+
 class User():
 
     def __init__(self, id, nickname, email):

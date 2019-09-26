@@ -1,22 +1,22 @@
 
 interface Node {
-    id: ID!
+    _id: ID!
 }
 
 type User implements Node {
-    id: ID!
+    _id: ID!
     nickname: String!
     email: String!
     registered_for_lunch: [Timestamp]
 }
 
 type Timestamp implements Node {
-    id: ID!
+    _id: ID!
     registered: Datetime!
 }
 
 type Query {
-    node(id: ID!): Node
+    node(_id: ID!): Node
     getUsers: [User]
 }
 
@@ -27,7 +27,7 @@ type Mutation {
 type UserPayload {
     status: Boolean!
     error: Error
-    user: User
+    user: [User]
 }
 
 type Error {

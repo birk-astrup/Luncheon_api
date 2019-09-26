@@ -4,7 +4,7 @@ from app.config import dev_config, prod_config
 from app.errors import AuthError, CreateUserError
 from flask import Flask, request, jsonify, _request_ctx_stack
 from flask_cors import cross_origin
-from .extensions import mongo
+from .extensions import mongo, prepare
 from functools import wraps
 from jose import jwt
 import json
@@ -39,13 +39,19 @@ def create_app(config = dev_config):
     @query.field("node")
     def resolve_node(_, info):
         return _.node
+    
+    @query.field("getUsers")
+    def resolve_get_users(_, info):
+        try:
+            map(prepare, mongo.db.users.find({}))
+        except: 
 
     @mutation.field("createUser")
     def resolve_add_user(_, info, nickname: str, email: str):
         
         try:
-            id = uuid.uuid4()
-            user = {"id": id, "nickname": nickname, "email": email }
+            _id = uuid.uuid4()
+            user = {"_id": _id, "nickname": nickname, "email": email }
             mongo.db.users.insert_one(user)
             status = True
             error = None

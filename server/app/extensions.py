@@ -2,4 +2,7 @@ from flask_pymongo import PyMongo
 
 mongo = PyMongo()
 
-#TODO clean this up
+def prepare(object):
+    """Converts _id from ObjectId to string"""
+    object._id = str(object._id)
+    return object
