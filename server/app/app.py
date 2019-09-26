@@ -2,16 +2,16 @@ from ariadne import ObjectType, graphql_sync, make_executable_schema, load_schem
 from ariadne.constants import PLAYGROUND_HTML
 from app.config import dev_config, prod_config
 from app.errors import AuthError, CreateUserError
+from app.validators import check_if_exists
 from flask import Flask, request, jsonify, _request_ctx_stack
 from flask_cors import cross_origin
 from .extensions import mongo, prepare
 from functools import wraps
 from jose import jwt
 import json
-from app.models import User, UserPayload
 import os
+from pymongo import MongoClient
 from urllib.request import urlopen
-import uuid
 
 
 def create_app(config = dev_config):
@@ -22,7 +22,7 @@ def create_app(config = dev_config):
         config = prod_config
     app.config.from_object(config)
 
-    mongo.init_app(app)
+    mongo = MongoClient(config.MONGO_URI)
 
     type_defs = load_schema_from_path('app/graphql/schema.graphql')
     query = ObjectType("Query")
@@ -38,30 +38,51 @@ def create_app(config = dev_config):
 
     @query.field("node")
     def resolve_node(_, info):
-        return _.node
+        pass
     
     @query.field("getUsers")
     def resolve_get_users(_, info):
-        try:
-            map(prepare, mongo.db.users.find({}))
-        except: 
+        with mongo:
+            try:
+                users = map(prepare, mongo.db.users.find({}))
+            
+            except Exception: 
+                return None
+
+            return users
+
 
     @mutation.field("createUser")
     def resolve_add_user(_, info, nickname: str, email: str):
-        
-        try:
-            _id = uuid.uuid4()
-            user = {"_id": _id, "nickname": nickname, "email": email }
-            mongo.db.users.insert_one(user)
-            status = True
-            error = None
-        
-        except Exception:
-            status = False
-            user = None
-            error = {"message": "could not insert into database"}
+        """Checks if user exists, if not, inserts user to database."""
 
-        return {"status": status, "error": error, "user": user}
+        user = {"nickname": nickname, "email": email }
+        query = {'$or': [{'nickname': user['nickname']}, {'email': user['email']}]}
+
+        with mongo:
+
+            existing_user = check_if_exists(mongo.db.users, query)
+            
+            if existing_user is None:
+             
+                try:
+                    mongo.db.users.insert_one(user)
+                    status = True
+                    error = None
+                    payload = {"status": status, "user": user, "error": error}
+        
+                except Exception:
+                    status = False
+                    user = None
+                    error = {"message": "could not insert into database"}
+                    payload = {"status": status, "user": user, "error": error}
+            
+            else:
+                status = False
+                error = {"message": "user already exists"}
+                payload = {"status": status, "error": error}
+
+            return payload
         
 
     schema = make_executable_schema(type_defs, bindables)

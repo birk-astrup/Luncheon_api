@@ -10,10 +10,10 @@ pylint = "*"
 ariadne = "*"
 flask = "*"
 environs = "*"
-flask-pymongo = "*"
 flask-cors = "*"
 python-jose = {extras = ["pycryptodome"],version = "*"}
 quart = "*"
+pymongo = "*"
 
 [requires]
 python_version = "3.7"
