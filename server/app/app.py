@@ -2,10 +2,10 @@ from ariadne import ObjectType, graphql_sync, make_executable_schema, load_schem
 from ariadne.constants import PLAYGROUND_HTML
 from app.config import dev_config, prod_config
 from app.errors import AuthError, CreateUserError
-from app.validators import check_if_exists
+#from app.validators import check_if_exists
 from flask import Flask, request, jsonify, _request_ctx_stack
 from flask_cors import cross_origin
-from .extensions import mongo, prepare
+from .extensions import prepare
 from functools import wraps
 from jose import jwt
 import json
@@ -61,7 +61,10 @@ def create_app(config = dev_config):
 
         with mongo:
 
-            existing_user = check_if_exists(mongo.db.users, query)
+            existing_user = mongo.db.users.find_one(query)
+            error = {"message": "could not insert user"}
+            status = False
+            payload = {"status": status, "error": error}
             
             if existing_user is None:
              
@@ -69,18 +72,17 @@ def create_app(config = dev_config):
                     mongo.db.users.insert_one(user)
                     status = True
                     error = None
-                    payload = {"status": status, "user": user, "error": error}
-        
+                    payload["user"] = user
+                
                 except Exception:
-                    status = False
-                    user = None
-                    error = {"message": "could not insert into database"}
-                    payload = {"status": status, "user": user, "error": error}
-            
+                    error["message"] = "Could not insert user"
+                    
             else:
-                status = False
-                error = {"message": "user already exists"}
-                payload = {"status": status, "error": error}
+
+                if (existing_user["nickname"] == nickname):
+                    error["message"] = "This nickname is already in use"
+                elif (existing_user["email"] == email):
+                    error["message"] = "This email is already in use"
 
             return payload
         
