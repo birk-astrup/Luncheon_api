@@ -35,8 +35,10 @@ const styles = StyleSheet.create({
 export default ({navigation}) => {
   const [isLoading, setIsLoading] = useState(true);
 
-  const _refreshAccessToken = () => {
-    SInfo.getItem('refreshToken', {}).then(refreshToken => {
+  const _refreshAccessToken = async () => {
+    const refreshToken = SInfo.getItem('refreshToken', {});
+    console.log(refreshToken);
+    if (refreshToken) {
       Auth0.auth
         .refreshToken({refreshToken: refreshToken})
         .then(newAccessToken => {
@@ -44,7 +46,9 @@ export default ({navigation}) => {
           RNRestart.Restart();
         })
         .catch(_ => setIsLoading(false));
-    });
+    }
+
+    navigation.navigate('Auth');
   };
 
   const _navigateToApp = (accessToken, refresh) => {
@@ -60,6 +64,7 @@ export default ({navigation}) => {
       .catch(refresh);
   };
 
+  // https://pusher.com/tutorials/auth0-react-native-chat
   const _login = async () => {
     try {
       const {accessToken, refreshToken} = await Auth0.webAuth.authorize({
