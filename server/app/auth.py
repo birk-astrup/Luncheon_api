@@ -40,11 +40,6 @@ def get_token_auth_header():
 def requires_auth(config):
 
     def decorate_function(function):
-        """Decorates function.
-        
-        Args: 
-            function (func)
-        """
 
         @wraps(function)
         def decorated(*args, **kwargs):

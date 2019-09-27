@@ -12,6 +12,7 @@ from jose import jwt
 import json
 import os
 from pymongo import MongoClient
+import time
 from urllib.request import urlopen
 
 
@@ -43,15 +44,21 @@ def create_app(config = dev_config):
     
     @query.field("getUsers")
     def resolve_get_users(_, info):
+
+        status = False
+        error = {"message": "could not get users"}
+        payload = {"status": status, "error": error}
         with mongo:
             try:
                 users = map(prepare, mongo.db.users.find({}))
-            
+                payload["user"] = users
+                payload["error"] = None
+                payload["status"] = True
+
             except Exception: 
-                return None
+                payload["error"]["message"] = "could not get users"
 
-            return users
-
+        return payload
 
     @mutation.field("createUser")
     def resolve_add_user(_, info, nickname: str, email: str):
@@ -59,20 +66,20 @@ def create_app(config = dev_config):
 
         user = {"nickname": nickname, "email": email }
         query = {'$or': [{'nickname': user['nickname']}, {'email': user['email']}]}
+        error = {"message": "could not insert user"}
+        status = False
+        payload = {"status": status, "error": error}
 
         with mongo:
 
             existing_user = mongo.db.users.find_one(query)
-            error = {"message": "could not insert user"}
-            status = False
-            payload = {"status": status, "error": error}
             
             if existing_user is None:
              
                 try:
                     mongo.db.users.insert_one(user)
-                    status = True
-                    error = None
+                    payload["error"] = None
+                    payload["status"] = True
                     payload["user"] = user
                 
                 except Exception:
@@ -86,6 +93,30 @@ def create_app(config = dev_config):
                     error["message"] = "This email is already in use"
 
         return payload
+    
+    @mutation.field("registerLunch")
+    def resolve_register_lunch(_, info, userId):
+        #TODO fix return value of registered. Timestamp gets inserted, but returns error
+        """Adds timestamp for registration to the database"""
+        date = time.time()
+        timestamp = {"registered": date, "userId": userId}
+        error = {"message": "could not insert timestamp"}
+        status = False
+        payload = {"status": status, "error": error}
+
+        with mongo:
+
+            try:
+                mongo.db.timestamps.insert_one(timestamp)
+                payload["error"] = None
+                payload["status"] = True
+                payload["timestamp"] = timestamp
+
+            except Exception:
+                error["message"] = "Could not insert timestamp"
+            
+        return payload
+
         
 
     schema = make_executable_schema(type_defs, bindables)
@@ -99,14 +130,14 @@ def create_app(config = dev_config):
         return response
 
     @app.route("/graphql", methods=["GET"])
-    @cross_origin(headers=["Content-type", "Authorization"])
-    @requires_auth(config)
+    #@cross_origin(headers=["Content-type", "Authorization"])
+    #@requires_auth(config)
     def graphql_playground():
         return PLAYGROUND_HTML, 200
      
     @app.route("/graphql", methods=["POST"])
-    @cross_origin(headers=["Content-type", "Authorization"])
-    @requires_auth(config)
+    #@cross_origin(headers=["Content-type", "Authorization"])
+    #@requires_auth(config)
     def graphql_server():
         data = request.get_json()
 

@@ -3,6 +3,11 @@ interface Node {
     _id: ID!
 }
 
+interface Payload {
+    status: Boolean!
+    error: Error
+}
+
 type User implements Node {
     _id: ID!
     nickname: String!
@@ -12,26 +17,35 @@ type User implements Node {
 
 type Timestamp implements Node {
     _id: ID!
-    registered: Datetime!
+    registered: DateTime!
+    userId: ID!
 }
 
 type Query {
     node(_id: ID!): Node
-    getUsers: [User]
+    getUsers: UserPayload
+    getTimestamps: TimestampPayload
 }
 
 type Mutation {
     createUser(nickname: String!, email: String!): UserPayload!
+    registerLunch(userId: ID!): TimestampPayload!
 }
 
-type UserPayload {
+type UserPayload implements Payload {
     status: Boolean!
     error: Error
     user: [User]
+}
+
+type TimestampPayload implements Payload {
+    status: Boolean!
+    error: Error
+    timestamp: [Timestamp]
 }
 
 type Error {
     message: String
 }
 
-scalar Datetime
+scalar DateTime
