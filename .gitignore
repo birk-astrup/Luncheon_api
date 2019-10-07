@@ -3,7 +3,7 @@ access.py
 test_api.py
 
 #PY CACHE
-.pyc
+__pycache__/
 
 #ENV file
 .env
