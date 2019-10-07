@@ -1,18 +1,18 @@
 import React from 'react';
 import Icons from 'react-native-vector-icons/Feather';
 
-export default navConfig = {
-  defaultNavigationOptions: ({ navigation }) => ({
-    tabBarIcon: ({ focused, horizontal, tintColor }) => {
-      const { routeName } = navigation.state;
+export default {
+  defaultNavigationOptions: ({navigation}) => ({
+    tabBarIcon: () => {
+      const {routeName} = navigation.state;
       let IconComponent = Icons;
       let iconName;
       if (routeName === 'Home') {
-        iconName = `home`;
+        iconName = 'home';
       } else if (routeName === 'Stats') {
-        iconName = `pie-chart`;
+        iconName = 'pie-chart';
       } else if (routeName === 'Calendar') {
-        iconName = `calendar`;
+        iconName = 'calendar';
       }
 
       // You can return any component that you like here!
@@ -22,9 +22,9 @@ export default navConfig = {
   tabBarOptions: {
     style: {
       height: 70,
-      backgroundColor: '#CACACA'
+      backgroundColor: '#CACACA',
     },
-    showLabel: false
+    showLabel: false,
   },
   initialRouteName: 'Home',
 };

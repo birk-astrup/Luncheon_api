@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import {StyleSheet} from 'react-native';
 export default StyleSheet.create({
   background: {
     backgroundColor: '#0B222E',
@@ -11,6 +11,9 @@ export default StyleSheet.create({
     fontFamily: 'RobotoSlab-Bold',
   },
   redText: {
-    color: '#E46053'
+    color: '#E46053',
+  },
+  greenText: {
+    color: '#5CBDAA',
   },
 });
