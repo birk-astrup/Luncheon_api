@@ -2,6 +2,9 @@
 access.py
 test_api.py
 
+#PY CACHE
+.pyc
+
 #ENV file
 .env
 

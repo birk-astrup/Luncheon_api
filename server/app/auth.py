@@ -1,43 +1,11 @@
-from ariadne import ObjectType, graphql_sync, make_executable_schema, load_schema_from_path, ScalarType
-from ariadne.constants import PLAYGROUND_HTML
-from app.config import dev_config, prod_config
 from app.errors import AuthError
-from flask import Flask, request, jsonify, _request_ctx_stack
-from flask_cors import cross_origin
-from flask_pymongo import PyMongo
+from flask import request, jsonify, _request_ctx_stack
 from functools import wraps
 from jose import jwt
 import json
-import os
 from urllib.request import urlopen
 
-
-def create_app(config = dev_config):
-
-    
-
-    type_defs = load_schema_from_path('app/graphql/schema.graphql')
-
-    query = ObjectType("Query")
-    datetime = ScalarType("Datetime")
-
-    app = Flask(__name__)
-    
-    if "FLASK_ENV" in os.environ and os.environ["FLASK_ENV"] == "production":
-        config = prod_config
-    app.config.from_object(config)
-
-    mongo = PyMongo(app)
-
-    @app.errorhandler(AuthError)
-    def handle_auth_error(exception):
-        """Returns response from authorization error."""
-        response = jsonify(exception.error)
-        response.status_code = exception.status_code
-
-        return response
-    
-    def get_token_auth_header():
+def get_token_auth_header():
         """Obtains the Access Token from the Authorization header."""
         auth = request.headers.get("Authorization", None)
         if not auth:
@@ -68,10 +36,12 @@ def create_app(config = dev_config):
         
         token = parts[1]
         return token
-    
-    def requires_auth(f):
-        """Determines if the Access Token is valid"""
-        @wraps(f)
+
+def requires_auth(config):
+
+    def decorate_function(function):
+
+        @wraps(function)
         def decorated(*args, **kwargs):
             token = get_token_auth_header()
             jsonurl = urlopen("https://"+config.DOMAIN+"/.well-known/jwks.json")
@@ -117,60 +87,27 @@ def create_app(config = dev_config):
                         }, 401)
                 
                 _request_ctx_stack.top.current_user = payload
-                return f(*args, **kwargs)
+                return function(*args, **kwargs)
             raise AuthError({"code": "invalid_header",
                         "description": "Unable to find appropriate key"}, 401)
         return decorated
+
+    return decorate_function
+
+def requires_scope(required_scope):
+    """Determines if the required scope is present in the Access Token
+
+    Args:
+        required_scope (str): The scope required to access the resource
     
-    def requires_scope(required_scope):
-        """Determines if the required scope is present in the Access Token
+    """
 
-        Args:
-            required_scope (str): The scope required to access the resource
-        
-        """
-
-        token = get_token_auth_header()
-        unverified_claims = jwt.get_unverified_claims(token)
-        if unverified_claims.get("scope"):
-            token_scopes = unverified_claims["scope"].split()
-            for token_scope in token_scopes:
-                if token_scope == required_scope:
-                    return True
-        
-        return False
-
-    @datetime.serializer
-    def serialize_datetime(value):
-        """Serialize custom datetime scalar for graphql-schema."""
-        return value.isoformat()
-
-    @query.field("User")
-    def resolve_user(_, info):
-        print(info)
+    token = get_token_auth_header()
+    unverified_claims = jwt.get_unverified_claims(token)
+    if unverified_claims.get("scope"):
+        token_scopes = unverified_claims["scope"].split()
+        for token_scope in token_scopes:
+            if token_scope == required_scope:
+                return True
     
-    schema = make_executable_schema(type_defs, query)
-
-    @app.route("/graphql", methods=["GET"])
-    @cross_origin(headers=["Content-type", "Authorization"])
-    @requires_auth
-    def graphql_playground():
-        return PLAYGROUND_HTML, 200
-     
-    @app.route("/graphql", methods=["POST"])
-    @cross_origin(headers=["Content-type", "Authorization"])
-    @requires_auth
-    def graphql_server():
-        data = request.get_json()
-
-        success, result = graphql_sync(
-            schema,
-            data,
-            context_value=request,
-            debug=app.debug
-        )
-        status_code = 200 if success else 400
-        return jsonify(result), status_code
-
-    return app
-
+    return False

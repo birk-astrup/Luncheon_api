@@ -1,20 +1,51 @@
-type Query {
-    User: [User]
-    Timestamp: [Timestamp]
+
+interface Node {
+    _id: ID!
 }
 
-type User {
-    
-    id: ID!
-    username: String!
+interface Payload {
+    status: Boolean!
+    error: Error
+}
+
+type User implements Node {
+    _id: ID!
+    nickname: String!
     email: String!
-    password: String!
     registered_for_lunch: [Timestamp]
 }
 
-type Timestamp {
-    id: ID!
-    registered: Datetime!
+type Timestamp implements Node {
+    _id: ID!
+    registered: String!
+    userId: ID!
+}
+
+type Query {
+    node(_id: ID!): Node
+    getUsers: [User]
+    getTimestamps: [Timestamp]
+}
+
+type Mutation {
+    createUser(nickname: String!, email: String!): UserPayload!
+    registerLunch(userId: ID!): TimestampPayload!
+}
+
+type UserPayload implements Payload {
+    status: Boolean!
+    error: Error
+    user: [User]
+}
+
+type TimestampPayload implements Payload {
+    status: Boolean!
+    error: Error
+    timestamp: Timestamp
+}
+
+type Error {
+    message: String
 }
 
 scalar Datetime
