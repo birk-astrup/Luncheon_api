@@ -1,30 +1,12 @@
-import React, {createContext, useReducer} from 'react';
+import {useState} from 'react';
+import {createContainer} from 'unstated-next';
 
-export const Store = createContext();
-
-const init = {
-  today: false,
+const userReducer = userDetails => {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  let [user, setUserDetails] = useState({});
+  let setUser = () => setUserDetails(userDetails);
+  let removeUser = () => setUserDetails({});
+  return {user, setUser, removeUser};
 };
 
-const reducer = (state, action) => {
-  switch (action.type) {
-    case 'SET_ACCESS_TOKEN':
-      return {
-        ...state,
-        accessToken: action.payload,
-      };
-    case 'SET_PAY_STATUS':
-      return {
-        ...state,
-        payStatus: action.payload,
-      };
-    default:
-      return state;
-  }
-};
-
-export const Provider = props => {
-  const [state, dispatch] = useReducer(reducer, init);
-  const value = {state, dispatch};
-  return <Store.Provider value={value}>{props.children}</Store.Provider>;
-};
+export default createContainer(userReducer);

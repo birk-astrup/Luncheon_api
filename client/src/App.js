@@ -1,5 +1,5 @@
 import React from 'react';
-import {Provider} from './store';
+import UserHandler from './store';
 import AppNavigator from './navigators';
 import ApolloClient, {InMemoryCache} from 'apollo-boost';
 import {ApolloProvider} from '@apollo/react-hooks';
@@ -13,9 +13,9 @@ const client = new ApolloClient({
 });
 
 export default () => (
-  <Provider>
+  <UserHandler.Provider>
     <ApolloProvider client={client}>
       <AppNavigator />
     </ApolloProvider>
-  </Provider>
+  </UserHandler.Provider>
 );
