@@ -4,6 +4,7 @@ from app.auth import requires_auth
 from app.config import dev_config, prod_config
 from app.errors import AuthError, CreateUserError
 #from app.validators import check_if_exists
+import datetime
 from flask import Flask, request, jsonify, _request_ctx_stack
 from flask_cors import cross_origin
 from .extensions import prepare
@@ -12,7 +13,6 @@ from jose import jwt
 import json
 import os
 from pymongo import MongoClient
-import time
 from urllib.request import urlopen
 
 
@@ -29,13 +29,13 @@ def create_app(config = dev_config):
     type_defs = load_schema_from_path('app/graphql/schema.graphql')
     query = ObjectType("Query")
     mutation = ObjectType("Mutation")
-    datetime = ScalarType("Datetime")
+    dateScalar = ScalarType("Datetime")
 
     bindables = [query, mutation]
 
-    @datetime.serializer
-    def serialize_datetime(value):
-        """Serialize custom datetime scalar for graphql-schema."""
+    @dateScalar.serializer
+    def serialize_dateScalar(value):
+        """Serialize custom DateScalar scalar for graphql-schema."""
         return value.isoformat()
 
     @query.field("node")
@@ -96,24 +96,31 @@ def create_app(config = dev_config):
     
     @mutation.field("registerLunch")
     def resolve_register_lunch(_, info, userId):
-        #TODO fix return value of registered. Timestamp gets inserted, but returns error
         """Adds timestamp for registration to the database"""
-        date = time.time()
-        timestamp = {"registered": date, "userId": userId}
+        new_timestamp = datetime.datetime.utcnow()
+        timestamp = {"userId": userId, "registered": new_timestamp}
         error = {"message": "could not insert timestamp"}
         status = False
         payload = {"status": status, "error": error}
 
         with mongo:
 
-            try:
-                mongo.db.timestamps.insert_one(timestamp)
-                payload["error"] = None
-                payload["status"] = True
-                payload["timestamp"] = timestamp
+            existing_timestamp = mongo.db.timestamps.find_one(timestamp)
+            if existing_timestamp: 
+                existing_timestamp.strftime('%Y-%m-%d')
+                new_timestamp.strftime('%Y-%m-%d')
 
-            except Exception:
-                error["message"] = "Could not insert timestamp"
+            if existing_timestamp is not new_timestamp:
+                try:
+                    mongo.db.timestamps.insert_one(timestamp)
+                    payload["error"] = None
+                    payload["status"] = True
+                    payload["timestamp"] = timestamp
+
+                except Exception:
+                    error["message"] = "Could not insert timestamp"
+            else:
+                error["message"] = "lunch already registered" 
             
         return payload
 

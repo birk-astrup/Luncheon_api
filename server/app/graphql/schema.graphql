@@ -17,14 +17,14 @@ type User implements Node {
 
 type Timestamp implements Node {
     _id: ID!
-    registered: DateTime!
+    registered: String!
     userId: ID!
 }
 
 type Query {
     node(_id: ID!): Node
-    getUsers: UserPayload
-    getTimestamps: TimestampPayload
+    getUsers: [User]
+    getTimestamps: [Timestamp]
 }
 
 type Mutation {
@@ -41,11 +41,11 @@ type UserPayload implements Payload {
 type TimestampPayload implements Payload {
     status: Boolean!
     error: Error
-    timestamp: [Timestamp]
+    timestamp: Timestamp
 }
 
 type Error {
     message: String
 }
 
-scalar DateTime
+scalar Datetime
