@@ -15,7 +15,7 @@ def get_token_auth_header():
             }, 401)
         
         parts = auth.split()
-        print(parts)
+
         if parts[0].lower() != "bearer":
             raise AuthError({
             "code": "invalid_header",
@@ -75,13 +75,15 @@ def requires_auth(config):
                         "description": "token is expired"
                         }, 401)
                 
-                except jwt.JWTClaimsError:
+                except jwt.JWTClaimsError as err:
+                    print(err)
                     raise AuthError({
                         "code": "invalid_claims",
                         "description": "incorrect claims, please check the audience and issuer"
                         }, 401)
                 
-                except Exception:
+                except Exception as err:
+                    print(err)
                     raise AuthError({
                         "code": "invalid_header",
                         "description": "unable to parse authentication token"

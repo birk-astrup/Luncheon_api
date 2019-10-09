@@ -1,34 +1,34 @@
 import React from 'react';
-import UserHandler from './store';
+import Store from './store';
 import AppNavigator from './navigators';
 import ApolloClient, {InMemoryCache} from 'apollo-boost';
 import {ApolloProvider} from '@apollo/react-hooks';
 import SInfo from 'react-native-sensitive-info';
-
-import {REACT_APP_DEVELOPMENT} from 'react-native-dotenv';
 
 const cache = new InMemoryCache({
   dataIdFromObject: obj => obj.id,
 });
 
 const client = new ApolloClient({
-  uri: REACT_APP_DEVELOPMENT,
+  uri: 'http://localhost:5000/graphql',
   cache,
   request: async op => {
-    const token = await SInfo.getItem('accessToken', {});
+    const access = await SInfo.getItem('accessToken', {});
+
+    console.log('access', access);
     op.setContext(context => ({
       headers: {
         ...context.headers,
-        authorization: token ? `Bearer ${token}` : '',
+        Authorization: access ? `Bearer ${access}` : '',
       },
     }));
   },
 });
 
 export default () => (
-  <UserHandler.Provider>
+  <Store.Provider>
     <ApolloProvider client={client}>
       <AppNavigator />
     </ApolloProvider>
-  </UserHandler.Provider>
+  </Store.Provider>
 );

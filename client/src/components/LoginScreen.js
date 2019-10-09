@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import SInfo from 'react-native-sensitive-info';
 import DeviceInfo from 'react-native-device-info';
 import RNRestart from 'react-native-restart';
-import {AUTHO_SCOPE, AUTH0_AUDIENCE} from 'react-native-dotenv';
+import {AUTH0_SCOPE, AUTH0_AUDIENCE} from 'react-native-dotenv';
 import {View, Button, StyleSheet, ActivityIndicator, Text} from 'react-native';
 
 import Auth0 from '../utils/auth0';
@@ -67,15 +67,19 @@ export default ({navigation}) => {
   // https://pusher.com/tutorials/auth0-react-native-chat
   const _login = async () => {
     try {
-      const {accessToken, refreshToken} = await Auth0.webAuth.authorize({
-        scope: AUTHO_SCOPE,
+      const {
+        accessToken,
+        refreshToken,
+        idToken,
+      } = await Auth0.webAuth.authorize({
+        scope: AUTH0_SCOPE,
         audience: AUTH0_AUDIENCE,
-        device: DeviceInfo.getUniqueId(),
       });
 
       // Safe storage
       SInfo.setItem('accessToken', accessToken, {});
       SInfo.setItem('refreshToken', refreshToken, {});
+      SInfo.setItem('idToken', idToken, {});
 
       _navigateToApp(accessToken);
     } catch (error) {
