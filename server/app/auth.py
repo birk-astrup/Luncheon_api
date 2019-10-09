@@ -15,7 +15,6 @@ def get_token_auth_header():
             }, 401)
         
         parts = auth.split()
-        print(parts)
 
         if parts[0].lower() != "bearer":
             raise AuthError({
@@ -69,8 +68,8 @@ def requires_auth(config):
                     issuer="https://"+config.DOMAIN+"/"
                     )
                     
-                except jwt.ExpiredSignatureError  as err:
-                    print(err)
+                    
+                except jwt.ExpiredSignatureError:
                     raise AuthError({
                         "code": "token_expired",
                         "description": "token is expired"

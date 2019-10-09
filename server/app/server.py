@@ -1,8 +1,9 @@
 from ariadne import ObjectType, graphql_sync, make_executable_schema, load_schema_from_path, ScalarType
 from ariadne.constants import PLAYGROUND_HTML
-from app.auth import requires_auth
-from app.config import dev_config, prod_config
-from app.errors import AuthError, CreateUserError
+from .auth import requires_auth
+from bson.objectid import ObjectId
+from .config import dev_config, prod_config
+from .errors import AuthError, CreateUserError
 #from app.validators import check_if_exists
 import datetime
 from flask import Flask, request, jsonify, _request_ctx_stack
@@ -94,37 +95,7 @@ def create_app(config = dev_config):
 
         return payload
     
-    @mutation.field("registerLunch")
-    def resolve_register_lunch(_, info, userId):
-        """Adds timestamp for registration to the database"""
-        new_timestamp = datetime.datetime.utcnow()
-        timestamp = {"userId": userId, "registered": new_timestamp}
-        error = {"message": "could not insert timestamp"}
-        status = False
-        payload = {"status": status, "error": error}
-
-        with mongo:
-
-            existing_timestamp = mongo.db.timestamps.find_one(timestamp)
-            if existing_timestamp: 
-                existing_timestamp.strftime('%Y-%m-%d')
-                new_timestamp.strftime('%Y-%m-%d')
-
-            if existing_timestamp is not new_timestamp:
-                try:
-                    mongo.db.timestamps.insert_one(timestamp)
-                    payload["error"] = None
-                    payload["status"] = True
-                    payload["timestamp"] = timestamp
-
-                except Exception:
-                    error["message"] = "Could not insert timestamp"
-            else:
-                error["message"] = "lunch already registered" 
-            
-        return payload
-
-        
+    
 
     schema = make_executable_schema(type_defs, bindables)
 
