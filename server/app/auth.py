@@ -65,7 +65,7 @@ def requires_auth(config):
                     token,
                     rsa_key,
                     algorithms=config.ALGORITHM,
-                    audience='https://luncheon/api',
+                    audience=config.AUDIENCE,
                     issuer="https://"+config.DOMAIN+"/"
                     )
                     
