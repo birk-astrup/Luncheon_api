@@ -95,33 +95,7 @@ def create_app(config = dev_config):
 
         return payload
     
-    @mutation.field("registerLunch")
-    def resolve_register_lunch(_, info, userId):
-        """Adds timestamp for registration to the database"""
-        new_timestamp = datetime.datetime.utcnow()
-        error = {"message": "could not insert timestamp"}
-        status = False
-        payload = {"status": status, "error": error}
-        filter_by = {"$and": [{"_id": ObjectId(userId)}, {"registered": new_timestamp.strftime("%Y-%m-%d")}]}
-        projection = ['registered']
-
-        with mongo:
-
-            existing_timestamp = mongo.db.users.find_one(filter_by, projection)
-            if existing_timestamp is None:
-                try:
-                    update_to_apply = {"$push": {"registered": new_timestamp}}
-                    mongo.db.users.update_one(filter_by, update_to_apply, True)
-                    payload["error"] = None
-                    payload["status"] = True
-                    payload["timestamp"] = new_timestamp
-
-                except Exception:
-                    error["message"] = "Could not insert timestamp"
-            else:
-                error["message"] = "lunch already registered" 
-            
-        return payload
+    
 
     schema = make_executable_schema(type_defs, bindables)
 
