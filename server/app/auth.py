@@ -15,7 +15,7 @@ def get_token_auth_header():
             }, 401)
         
         parts = auth.split()
-
+        print(parts)
         if parts[0].lower() != "bearer":
             raise AuthError({
             "code": "invalid_header",
@@ -67,6 +67,7 @@ def requires_auth(config):
                     audience=config.AUDIENCE,
                     issuer="https://"+config.DOMAIN+"/"
                     )
+                    
                     
                 except jwt.ExpiredSignatureError:
                     raise AuthError({
