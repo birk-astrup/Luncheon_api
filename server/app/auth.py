@@ -15,6 +15,7 @@ def get_token_auth_header():
             }, 401)
         
         parts = auth.split()
+        print(parts)
 
         if parts[0].lower() != "bearer":
             raise AuthError({
@@ -64,23 +65,26 @@ def requires_auth(config):
                     token,
                     rsa_key,
                     algorithms=config.ALGORITHM,
-                    audience=config.AUDIENCE,
+                    audience='https://luncheon/api',
                     issuer="https://"+config.DOMAIN+"/"
                     )
                     
-                except jwt.ExpiredSignatureError:
+                except jwt.ExpiredSignatureError  as err:
+                    print(err)
                     raise AuthError({
                         "code": "token_expired",
                         "description": "token is expired"
                         }, 401)
                 
-                except jwt.JWTClaimsError:
+                except jwt.JWTClaimsError as err:
+                    print(err)
                     raise AuthError({
                         "code": "invalid_claims",
                         "description": "incorrect claims, please check the audience and issuer"
                         }, 401)
                 
-                except Exception:
+                except Exception as err:
+                    print(err)
                     raise AuthError({
                         "code": "invalid_header",
                         "description": "unable to parse authentication token"

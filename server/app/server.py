@@ -137,14 +137,14 @@ def create_app(config = dev_config):
         return response
 
     @app.route("/graphql", methods=["GET"])
-    #@cross_origin(headers=["Content-type", "Authorization"])
-    #@requires_auth(config)
+    @cross_origin(headers=["Content-type", "Authorization"])
+    @requires_auth(config)
     def graphql_playground():
         return PLAYGROUND_HTML, 200
      
     @app.route("/graphql", methods=["POST"])
-    #@cross_origin(headers=["Content-type", "Authorization"])
-    #@requires_auth(config)
+    @cross_origin(headers=["Content-type", "Authorization"])
+    @requires_auth(config)
     def graphql_server():
         data = request.get_json()
 

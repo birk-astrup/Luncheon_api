@@ -1,57 +1,23 @@
 import React, {useEffect, useState} from 'react';
+// import {useQuery} from '@apollo/react-hooks';
 import Icon from 'react-native-vector-icons/AntDesign';
-import {Text, View, TouchableOpacity, StyleSheet} from 'react-native';
+import {Text, View, TouchableOpacity} from 'react-native';
 
 import style from '../styles/main';
+import homeStyle from '../styles/homeStyles';
 
 import Auth0 from '../utils/auth0';
 import SInfo from 'react-native-sensitive-info';
 
-const _style = StyleSheet.create({
-  box: {
-    height: 90,
-    width: 90,
-    borderRadius: 5,
-    backgroundColor: '#E46053',
-    left: '50%',
-    transform: [{translateX: -45}],
-  },
-  checkmark: {
-    height: 45,
-    width: 45,
-    left: '50%',
-    transform: [{translateX: -22.5}],
-  },
-  container: {
-    ...style.background,
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    position: 'relative',
-    paddingLeft: 65,
-    paddingRight: 65,
-  },
-  redHeaderText: {
-    ...style.largeHeaderText,
-    ...style.redText,
-  },
-  greenHeaderText: {
-    ...style.largeHeaderText,
-    ...style.greenText,
-  },
-  wrapper: {
-    position: 'relative',
-    height: 375,
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-  },
-});
+import DateStore from '../store';
 
 export default ({navigation}) => {
   const [name, setName] = useState(null);
   const [data, setData] = useState(null);
   const [hasPaid, setHasPaid] = useState(false);
+  const [hasFetched, setHasFetched] = useState(false);
+  // Store usage
+  const storage = DateStore.useContainer();
 
   const getName = async () => {
     const token = await SInfo.getItem('accessToken', {});
@@ -69,30 +35,39 @@ export default ({navigation}) => {
     setData(dataFromQR);
   }, [navigation]);
 
+  // useEffect(() => {
+  //   // @TODO fetch dates to state
+  //   if (!hasFetched) {
+  //     const query = useQuery();
+  //     storage.setDates(query.data);
+  //     setHasFetched(true);
+  //   }
+  // }, [hasFetched, storage]);
+
   // Mounting cycle
   useEffect(() => {
-    data === 'www.netcompany.com' && setHasPaid(true);
+    data === 'netcompany' && setHasPaid(true);
     getName();
   }, [data]);
 
   return (
-    <View style={_style.container}>
-      <View style={_style.wrapper}>
+    <View style={homeStyle.container}>
+      <View style={homeStyle.wrapper}>
         <Text style={style.largeHeaderText}>God morgen, {name}</Text>
 
         {!hasPaid ? (
           <>
-            <Text style={_style.redHeaderText}>bekreft lunsj med QR</Text>
+            <Text style={homeStyle.redHeaderText}>bekreft lunsj med QR</Text>
             <TouchableOpacity
               onPress={() => navigation.navigate('QRscanner')}
-              style={_style.box}>
+              style={homeStyle.box}>
               <Icon name={'qrcode'} size={90} />
             </TouchableOpacity>
           </>
         ) : (
           <>
-            <Text style={_style.greenHeaderText}>lunsj bekreftet</Text>
-            <View style={_style.checkmark}>
+            <Text style={homeStyle.greenHeaderText}>lunsj bekreftet</Text>
+            <View style={homeStyle.checkmark}>
               <Icon name={'checkcircle'} size={45} color={'#5CBDAA'} />
             </View>
           </>
