@@ -6,6 +6,7 @@ import {handleCalendarFormating} from '../utils/calendarUtils';
 import DataStore from '../store';
 
 import style from '../styles/main';
+import CalendarAlert from '../components/CalendarAlert';
 
 const _style = StyleSheet.create({
   container: {
@@ -38,6 +39,7 @@ const date = new Date();
 export default () => {
   const [calendarDates, setCalendarDates] = useState({});
   const storage = DataStore.useContainer();
+
   useEffect(() => {
     let dates = storage.dateList;
     if (dates.length > 0) {
@@ -54,11 +56,10 @@ export default () => {
           calendarBackground: 'rgba(0,0,0,0.0)',
           dayTextColor: '#FFFFFF',
           textDisabledColor: '#525252',
+          textDayFontSize: 18,
         }}
         markedDates={calendarDates}
-        onDayPress={day => {
-          console.log('selected day', day);
-        }}
+        onDayPress={day => CalendarAlert(day)}
         markingType={'period'}
         hideArrows={true}
         hideDayNames={true}
