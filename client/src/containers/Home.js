@@ -43,7 +43,10 @@ export default ({navigation}) => {
   // Recives data from scanner
   useEffect(() => {
     const dataFromQR = navigation.getParam('data', 'No data recived');
-    dataFromQR === 'netcompany' && setHasPaid(true);
+    if (dataFromQR === 'netcompany') {
+      setHasPaid(true);
+      // @TODO send in timestamp for today.
+    }
   }, [navigation]);
 
   useEffect(() => {
