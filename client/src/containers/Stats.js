@@ -2,22 +2,15 @@ import React, {useEffect} from 'react';
 import SInfo from 'react-native-sensitive-info';
 import {Text, View, Button} from 'react-native';
 import {useQuery} from '@apollo/react-hooks';
-import {gql} from 'apollo-boost';
+
+import USER_QUERY from '../queries/getUsers';
 
 import style from '../styles/main';
 
 import Auth0 from '../utils/auth0';
 
 export default ({navigation}) => {
-  const USER_QUERY = gql`
-    query GetAllQueries {
-      getUsers {
-        id
-        email
-      }
-    }
-  `;
-  const everything = useQuery(USER_QUERY);
+  const users = useQuery(USER_QUERY);
 
   const _logOut = async () => {
     SInfo.deleteItem('accessToken', {});
@@ -33,8 +26,8 @@ export default ({navigation}) => {
   };
 
   useEffect(() => {
-    console.log(everything);
-  }, [everything]);
+    !users.loading && console.log('Console for: getUsers', users);
+  }, [users]);
 
   return (
     <View style={style.background}>

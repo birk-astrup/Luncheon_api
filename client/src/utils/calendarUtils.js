@@ -23,6 +23,14 @@ export const createArrayOfDates = amount => {
   return array;
 };
 
+export const formatDate = date => {
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+
+  return `${year}-${month}-${day}`;
+};
+
 // Takes array of new Date()
 export const handleCalendarFormating = arr => {
   const obj = {};
