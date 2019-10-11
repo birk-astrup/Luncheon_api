@@ -1,3 +1,4 @@
+scalar Datetime
 
 interface Node {
     _id: ID!
@@ -10,7 +11,7 @@ interface Payload {
 
 type Query {
     user(nickname: String!, email: String!): UserPayload
-    getUsers: UsersPayload
+    getUsers: UserPayload
 }
 
 type Mutation {
@@ -21,7 +22,7 @@ type User implements Node {
     _id: ID!
     nickname: String!
     email: String!
-    registered_for_lunch: [Datetime]
+    registered: [Datetime]
 }
 
 type UserPayload implements Payload {
@@ -34,4 +35,3 @@ type Error {
     message: String
 }
 
-scalar Datetime
