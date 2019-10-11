@@ -5541,7 +5541,7 @@ react-native-auth0@^1.5.0:
     base-64 "^0.1.0"
     url "^0.11.0"
 
-react-native-calendars@^1.212.0:
+react-native-calendars@^1.22.0:
   version "1.212.0"
   resolved "https://registry.yarnpkg.com/react-native-calendars/-/react-native-calendars-1.212.0.tgz#6070ae37c7a446da5a6fb1c24b71feda5021aafd"
   integrity sha512-FrWabRJlUeTjCF8qx8cYAId4SbCMmVmO5eE791ykQaTG2/jvQJz2O3MF5QRjJHyaS/QdeEilKf9w/Mk43bM42Q==

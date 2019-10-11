@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-// import {useQuery} from '@apollo/react-hooks';
+import {useQuery} from '@apollo/react-hooks';
 import Icon from 'react-native-vector-icons/AntDesign';
 import {Text, View, TouchableOpacity} from 'react-native';
 
@@ -11,18 +11,29 @@ import SInfo from 'react-native-sensitive-info';
 
 import DateStore from '../store';
 
+import timestampQuery from '../queries/getTimestamps';
+
+import {formatDate} from '../utils/calendarUtils';
+
 export default ({navigation}) => {
   const [name, setName] = useState(null);
-  const [data, setData] = useState(null);
   const [hasPaid, setHasPaid] = useState(false);
   const [hasFetched, setHasFetched] = useState(false);
+
+  // format date
+  const today = new Date();
+  const formattedTodaysDate = formatDate(today);
+
+  const query = useQuery(timestampQuery);
+
+  console.log(query);
   // Store usage
   const storage = DateStore.useContainer();
 
   const getName = async () => {
-    const token = await SInfo.getItem('accessToken', {});
-    const user = await Auth0.auth.userInfo({token});
     try {
+      const token = await SInfo.getItem('accessToken', {});
+      const user = await Auth0.auth.userInfo({token});
       setName(user.nickname);
     } catch (err) {
       console.error(err);
@@ -32,23 +43,33 @@ export default ({navigation}) => {
   // Recives data from scanner
   useEffect(() => {
     const dataFromQR = navigation.getParam('data', 'No data recived');
-    setData(dataFromQR);
+    if (dataFromQR === 'netcompany') {
+      setHasPaid(true);
+      // @TODO send in timestamp for today.
+    }
   }, [navigation]);
 
-  // useEffect(() => {
-  //   // @TODO fetch dates to state
-  //   if (!hasFetched) {
-  //     const query = useQuery();
-  //     storage.setDates(query.data);
-  //     setHasFetched(true);
-  //   }
-  // }, [hasFetched, storage]);
+  useEffect(() => {
+    // @TODO fetch dates to state
+    if (!hasFetched) {
+      if (query.data && query.data.length > 0) {
+        storage.setDates(query.data);
+
+        for (let item in query.data) {
+          if (formatDate(item.registered) === formattedTodaysDate) {
+            setHasPaid(true);
+          }
+        }
+      }
+
+      setHasFetched(true);
+    }
+  }, [formattedTodaysDate, hasFetched, query.data, storage]);
 
   // Mounting cycle
   useEffect(() => {
-    data === 'netcompany' && setHasPaid(true);
     getName();
-  }, [data]);
+  }, []);
 
   return (
     <View style={homeStyle.container}>

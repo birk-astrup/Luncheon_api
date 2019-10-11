@@ -5,6 +5,7 @@
   "scripts": {
     "start": "react-native start",
     "android": "react-native run-android",
+    "ios": "react-native run-ios",
     "test": "jest",
     "lint": "eslint ."
   },
@@ -18,7 +19,7 @@
     "react-apollo": "^3.1.1",
     "react-native": "0.60.5",
     "react-native-auth0": "^1.5.0",
-    "react-native-calendars": "^1.212.0",
+    "react-native-calendars": "^1.22.0",
     "react-native-camera": "^3.4.0",
     "react-native-device-info": "^3.1.4",
     "react-native-dotenv": "^0.2.0",
