@@ -8,40 +8,26 @@ interface Payload {
     error: Error
 }
 
+type Query {
+    user(nickname: String!, email: String!): UserPayload
+    getUsers: UsersPayload
+}
+
+type Mutation {
+    registerLunch(nickname: String!, email: String!): UserPayload!
+}
+
 type User implements Node {
     _id: ID!
     nickname: String!
     email: String!
-    registered_for_lunch: [Timestamp]
-}
-
-type Timestamp implements Node {
-    _id: ID!
-    registered: String!
-    userId: ID!
-}
-
-type Query {
-    node(_id: ID!): Node
-    getUsers: UserPayload
-    getTimestamps: [Timestamp]
-}
-
-type Mutation {
-    createUser(nickname: String!, email: String!): UserPayload!
-    registerLunch(userId: ID!): TimestampPayload!
+    registered_for_lunch: [Datetime]
 }
 
 type UserPayload implements Payload {
     status: Boolean!
     error: Error
     user: [User]
-}
-
-type TimestampPayload implements Payload {
-    status: Boolean!
-    error: Error
-    timestamp: Timestamp
 }
 
 type Error {

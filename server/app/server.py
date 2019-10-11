@@ -4,11 +4,10 @@ from .auth import requires_auth
 from bson.objectid import ObjectId
 from .config import dev_config, prod_config
 from .errors import AuthError, CreateUserError
-#from app.validators import check_if_exists
 import datetime
 from flask import Flask, request, jsonify, _request_ctx_stack
 from flask_cors import cross_origin
-from .extensions import prepare
+import app.extensions as ex
 from functools import wraps
 from jose import jwt
 import json
@@ -39,9 +38,26 @@ def create_app(config = dev_config):
         """Serialize custom DateScalar scalar for graphql-schema."""
         return value.isoformat()
 
-    @query.field("node")
-    def resolve_node(_, info):
-        pass
+    @query.field("user")
+    def resolve_user(_, info, nickname, email):
+        #TODO: maybe this can be a decorator?
+        status = False
+        error = {"message": "could not get users"}
+        payload = {"status": status, "error": error}
+        
+        with mongo:
+            try:
+                user = map(ex.prepare, mongo.db.users.find({"nickname": nickname, "email": email}))
+                payload["user"] = user
+                payload["status"] = True
+                payload["error"] = None
+
+                return payload
+            except Exception as e:
+                print(e)
+                payload["error"]["message"] = "could not get user"
+                return payload
+
     
     @query.field("getUsers")
     def resolve_get_users(_, info):
@@ -51,7 +67,7 @@ def create_app(config = dev_config):
         payload = {"status": status, "error": error}
         with mongo:
             try:
-                users = map(prepare, mongo.db.users.find({}))
+                users = map(ex.prepare, mongo.db.users.find({}))
                 payload["user"] = users
                 payload["error"] = None
                 payload["status"] = True
@@ -60,42 +76,21 @@ def create_app(config = dev_config):
                 payload["error"]["message"] = "could not get users"
 
         return payload
-
-    @mutation.field("createUser")
-    def resolve_add_user(_, info, nickname: str, email: str):
-        """Checks if user exists, if not, inserts user to database."""
-
-        user = {"nickname": nickname, "email": email }
-        query = {'$or': [{'nickname': user['nickname']}, {'email': user['email']}]}
-        error = {"message": "could not insert user"}
-        status = False
-        payload = {"status": status, "error": error}
-
-        with mongo:
-
-            existing_user = mongo.db.users.find_one(query)
-            
-            if existing_user is None:
-             
-                try:
-                    mongo.db.users.insert_one(user)
-                    payload["error"] = None
-                    payload["status"] = True
-                    payload["user"] = user
-                
-                except Exception:
-                    error["message"] = "Could not insert user"
-                    
-            else:
-
-                if (existing_user["nickname"] == nickname):
-                    error["message"] = "This nickname is already in use"
-                elif (existing_user["email"] == email):
-                    error["message"] = "This email is already in use"
-
-        return payload
     
-    
+    #TODO: Implement lambda functions in method
+    @mutation.field("registerLunch")
+    def resolve_register_lunch(_, info, nickname, email):
+        """Adds timestamp for registration to the database"""
+
+        new_timestamp = datetime.datetime.utcnow()
+
+        user = {"nickname": nickname, "email": email, "timestamp_to_register": new_timestamp }
+
+        if ex.get_user(nickname, email, mongo):
+            return ex.register_lunch(user, mongo, True)
+        
+        else:
+            return ex.register_lunch(user, mongo)
 
     schema = make_executable_schema(type_defs, bindables)
 
