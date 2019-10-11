@@ -1,0 +1,29 @@
+.monthpicker {
+    &-box {
+        width: 100%;
+        margin: 2rem 0;
+        padding: 2rem 3.5rem;
+        border-radius: 5px;
+        box-shadow: 0px 3px 9px rgba(0, 0, 0, 0.25);
+
+        position: relative;
+    }
+
+    &-list {
+        position: absolute;
+        width: calc(100% - 7rem);
+
+        li {
+            font-size: 3rem;
+            list-style: none;
+            background: white;
+            width: 100%;
+            padding: 0 1rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+
+            &:first-child {
+                border-top: 1px solid rgba(0, 0, 0, 0.25);
+            }
+        }
+    }
+}

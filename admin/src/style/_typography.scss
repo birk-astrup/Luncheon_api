@@ -1,0 +1,27 @@
+.primary {
+    &-title {
+        font-size: 1.5rem;
+        text-transform: uppercase;
+        font-weight: bold;
+    }
+
+    &-subtitle {
+        font-size: 2rem;
+        font-weight: 400;
+        color: #7E7E7E;
+
+        &--bold {
+            font-weight: bold;
+            color: #000000;
+        }
+    }
+}
+
+.big {
+    &-title {
+        font-size: 4rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        color: #50B8C1;
+    }
+}
