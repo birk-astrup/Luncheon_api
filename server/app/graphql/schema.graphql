@@ -27,12 +27,6 @@ type User implements Node {
 type UserPayload implements Payload {
     status: Boolean!
     error: Error
-    user: User
-}
-
-type UsersPayload implements Payload {
-    status: Boolean!
-    error: Error
     user: [User]
 }
 

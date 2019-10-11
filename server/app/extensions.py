@@ -19,20 +19,6 @@ def get_user(nickname, email, mongo):
 
         return user
 
-#TODO: delete this function
-def insert_user(user, mongo):
-
-    with mongo:
-
-        try:
-            mongo.db.users.update_one(user, upsert=True)
-            payload = {"status": True, "error": None, "user": user}
-        
-        except Exception:
-            payload = {"status": False, "error": {"message": "could not insert new user"}}
-
-        return payload
-
 def check_if_today_is_registered(user, mongo):
     
     day = user["timestamp_to_register"].day

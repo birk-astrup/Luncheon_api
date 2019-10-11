@@ -47,7 +47,17 @@ def create_app(config = dev_config):
         
         with mongo:
             try:
-                mongo.db.
+                user = map(ex.prepare, mongo.db.users.find({"nickname": nickname, "email": email}))
+                payload["user"] = user
+                payload["status"] = True
+                payload["error"] = None
+
+                return payload
+            except Exception as e:
+                print(e)
+                payload["error"]["message"] = "could not get user"
+                return payload
+
     
     @query.field("getUsers")
     def resolve_get_users(_, info):
@@ -66,41 +76,6 @@ def create_app(config = dev_config):
                 payload["error"]["message"] = "could not get users"
 
         return payload
-
-#TODO: Delete this mutation
-    @mutation.field("createUser")
-    def resolve_add_user(_, info, nickname: str, email: str):
-        """Checks if user exists, if not, inserts user to database."""
-
-        user = {"nickname": nickname, "email": email, "registered_for_lunch": [] }
-        query = {'$or': [{'nickname': user['nickname']}, {'email': user['email']}]}
-        error = {"message": "could not insert user"}
-        status = False
-        payload = {"status": status, "error": error}
-
-        with mongo:
-
-            existing_user = mongo.db.users.find_one(query)
-            
-            if existing_user is None:
-             
-                try:
-                    mongo.db.users.insert_one(user)
-                    payload["error"] = None
-                    payload["status"] = True
-                    payload["user"] = user
-                
-                except Exception:
-                    error["message"] = "Could not insert user"
-                    
-            else:
-
-                if (existing_user["nickname"] == nickname):
-                    error["message"] = "This nickname is already in use"
-                elif (existing_user["email"] == email):
-                    error["message"] = "This email is already in use"
-
-        return payload
     
     #TODO: Implement lambda functions in method
     @mutation.field("registerLunch")
@@ -111,16 +86,11 @@ def create_app(config = dev_config):
 
         user = {"nickname": nickname, "email": email, "timestamp_to_register": new_timestamp }
 
-        if ex.check_user(nickname, email, mongo):
+        if ex.get_user(nickname, email, mongo):
             return ex.register_lunch(user, mongo, True)
         
         else:
             return ex.register_lunch(user, mongo)
-            
-
-        
-
-        
 
     schema = make_executable_schema(type_defs, bindables)
 
@@ -133,14 +103,14 @@ def create_app(config = dev_config):
         return response
 
     @app.route("/graphql", methods=["GET"])
-    #@cross_origin(headers=["Content-type", "Authorization"])
-    #@requires_auth(config)
+    @cross_origin(headers=["Content-type", "Authorization"])
+    @requires_auth(config)
     def graphql_playground():
         return PLAYGROUND_HTML, 200
      
     @app.route("/graphql", methods=["POST"])
-    #@cross_origin(headers=["Content-type", "Authorization"])
-    #@requires_auth(config)
+    @cross_origin(headers=["Content-type", "Authorization"])
+    @requires_auth(config)
     def graphql_server():
         data = request.get_json()
 
