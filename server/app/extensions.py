@@ -5,14 +5,13 @@ import pprint
 
 def prepare(object):
     """Converts _id from ObjectId to string."""
-    print(object)
     object['_id'] = str(object['_id'])
     
     return object
 
 def get_user(nickname, email, mongo):
 
-    query = {'$and': [{'nickname': nickname}, {'email': email}]}
+    query = {'$or': [{'nickname': nickname}, {'email': email}]}
 
     with mongo:
 
@@ -21,15 +20,15 @@ def get_user(nickname, email, mongo):
         return user
 
 def check_if_today_is_registered(user, mongo):
-    
-    day = user["timestamp_to_register"].day
-    month = user["timestamp_to_register"].month
-    year = user["timestamp_to_register"].year
+    #TODO: validate if date is weekday
+    day = user["registered"].day
+    month = user["registered"].month
+    year = user["registered"].year
 
     result = {"error": None, "data": None}
 
     pipeline = [
-        {"$match": { "$and": [{"nickname": user["nickname"]}, {"email": user["email"]}]}},
+        {"$match": { "$or": [{"nickname": user["nickname"]}, {"email": user["email"]}]}},
         {"$unwind": {"path": "$registered", "preserveNullAndEmptyArrays": True}},
         {"$project": 
             {"_id": 0, "today": 
@@ -72,7 +71,7 @@ def register_lunch(user, mongo, user_exists=False):
             "nickname": user["nickname"], 
             "email": user["email"]
         },
-        "$push": {"registered": user["timestamp_to_register"]}
+        "$push": {"registered": user["registered"]}
     }
 
     if user_exists is True:
@@ -86,7 +85,10 @@ def register_lunch(user, mongo, user_exists=False):
     with mongo:
         try:     
             mongo.db.users.update_one(filter_by, update_to_apply, upsert=True)
-            payload = {"status": True, "error": None, "user": user}
+
+            payload = {"status": True, "error": None}
+            
+            return payload  
 
         except Exception as ex:
             print(ex)
@@ -94,7 +96,6 @@ def register_lunch(user, mongo, user_exists=False):
 
         return payload   
     
-    return payload
 
 
 

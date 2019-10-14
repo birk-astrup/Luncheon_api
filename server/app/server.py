@@ -29,9 +29,10 @@ def create_app(config = dev_config):
     type_defs = load_schema_from_path('app/graphql/schema.graphql')
     query = ObjectType("Query")
     mutation = ObjectType("Mutation")
+    user = ObjectType("User")
     dateScalar = ScalarType("Datetime")
 
-    bindables = [query, mutation, dateScalar]
+    bindables = [query, mutation, user, dateScalar]
 
     @dateScalar.serializer
     def serialize_dateScalar(value):
@@ -48,11 +49,12 @@ def create_app(config = dev_config):
         with mongo:
             try:
                 user = map(ex.prepare, mongo.db.users.find({"nickname": nickname, "email": email}))
-                print(user)
-                payload["user"] = user
-                payload["status"] = True
-                payload["error"] = None
+                if user is not None:
+                    payload["user"] = user
+                    payload["status"] = True
+                    payload["error"] = None
 
+                print(type(payload))
                 return payload
             except Exception as e:
                 print(e)
@@ -75,7 +77,7 @@ def create_app(config = dev_config):
 
             except Exception: 
                 payload["error"]["message"] = "could not get users"
-
+        
         return payload
     
     #TODO: Implement lambda functions in method
@@ -83,15 +85,27 @@ def create_app(config = dev_config):
     def resolve_register_lunch(_, info, nickname, email):
         """Adds timestamp for registration to the database"""
 
-        new_timestamp = datetime.datetime.utcnow()
+        #new_timestamp = datetime.datetime.utcnow()
 
-        user = {"nickname": nickname, "email": email, "timestamp_to_register": new_timestamp }
+        new_timestamp = datetime.datetime(2019, 10, 13)
+        if new_timestamp.isoweekday() is not 6 and not 7:
 
-        if ex.get_user(nickname, email, mongo):
-            return ex.register_lunch(user, mongo, True)
+            user = {"nickname": nickname, "email": email, "registered": new_timestamp}
+
+            if ex.get_user(nickname, email, mongo):
+                return ex.register_lunch(user, mongo, True)
+            
+            else:
+                return ex.register_lunch(user, mongo)
         
-        else:
-            return ex.register_lunch(user, mongo)
+        return {'status': False, 'error': {'message': 'lunch is only available on weekdays'}}
+    
+    @user.field("registered")
+    def resolve_registered(payload, info):
+        registered = []
+        for timestamp in payload["registered"]:
+            registered.append(timestamp)
+        return registered
 
     schema = make_executable_schema(type_defs, bindables)
 
