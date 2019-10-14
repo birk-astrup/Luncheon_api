@@ -1,0 +1,10 @@
+#ENV FILES
+*.env
+
+#PYTHON
+__pycache__/
+test_api.py
+access.py
+
+#VSCODE
+.vscode/
