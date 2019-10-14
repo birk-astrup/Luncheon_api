@@ -85,9 +85,8 @@ def create_app(config = dev_config):
     def resolve_register_lunch(_, info, nickname, email):
         """Adds timestamp for registration to the database"""
 
-        #new_timestamp = datetime.datetime.utcnow()
-
-        new_timestamp = datetime.datetime(2019, 10, 13)
+        new_timestamp = datetime.datetime.utcnow()
+        
         if new_timestamp.isoweekday() is not 6 and not 7:
 
             user = {"nickname": nickname, "email": email, "registered": new_timestamp}
