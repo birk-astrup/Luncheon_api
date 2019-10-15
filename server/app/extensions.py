@@ -36,14 +36,13 @@ def check_if_today_is_registered(user, mongo):
         try:
             for data in mongo.db.users.aggregate(pipeline):
 
-                print(data)
                 if data["today"] == "True":
                     result["data"] = True
                     result["error"] = {"message": "lunch already registered"}
 
             
             result["data"] = False
-            
+
             return result
 
         except Exception as e:
