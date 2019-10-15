@@ -1,14 +1,13 @@
-from ariadne import ObjectType, graphql_sync, make_executable_schema, load_schema_from_path, ScalarType
+from ariadne import ObjectType, graphql_sync, make_executable_schema, load_schema_from_path, ScalarType, EnumType
 from ariadne.constants import PLAYGROUND_HTML
 from .auth import requires_auth
 from bson.objectid import ObjectId
 from .config import dev_config, prod_config
 from .errors import AuthError, CreateUserError
-#from app.validators import check_if_exists
 import datetime
 from flask import Flask, request, jsonify, _request_ctx_stack
 from flask_cors import cross_origin
-from .extensions import prepare
+import app.extensions as ex
 from functools import wraps
 from jose import jwt
 import json
@@ -30,18 +29,39 @@ def create_app(config = dev_config):
     type_defs = load_schema_from_path('app/graphql/schema.graphql')
     query = ObjectType("Query")
     mutation = ObjectType("Mutation")
+    user = ObjectType("User")
+    registered = ObjectType("Registered")
     dateScalar = ScalarType("Datetime")
 
-    bindables = [query, mutation]
+    bindables = [query, mutation, user, registered, dateScalar]
 
     @dateScalar.serializer
     def serialize_dateScalar(value):
         """Serialize custom DateScalar scalar for graphql-schema."""
         return value.isoformat()
 
-    @query.field("node")
-    def resolve_node(_, info):
-        pass
+    @query.field("user")
+    def resolve_user(_, info, _id):
+        #TODO: maybe this can be a decorator?
+        status = False
+        error = {"message": "could not get users"}
+        payload = {"status": status, "error": error}
+        
+        with mongo:
+            try:
+                user = map(ex.prepare, mongo.db.users.find({"_id": ObjectId(_id)}))
+                if user is not None:
+                    payload["user"] = user
+                    payload["status"] = True
+                    payload["error"] = None
+
+                print(type(payload))
+                return payload
+            except Exception as e:
+                print(e)
+                payload["error"]["message"] = "could not get user"
+                return payload
+
     
     @query.field("getUsers")
     def resolve_get_users(_, info):
@@ -51,51 +71,63 @@ def create_app(config = dev_config):
         payload = {"status": status, "error": error}
         with mongo:
             try:
-                users = map(prepare, mongo.db.users.find({}))
+                users = map(ex.prepare, mongo.db.users.find({}))
                 payload["user"] = users
                 payload["error"] = None
                 payload["status"] = True
 
             except Exception: 
                 payload["error"]["message"] = "could not get users"
-
+        
         return payload
+    
+    #TODO: Implement lambda functions in method
+    @mutation.field("registerLunch")
+    def resolve_register_lunch(_, info, nickname, email):
+        """Adds timestamp for registration to the database"""
 
-    @mutation.field("createUser")
-    def resolve_add_user(_, info, nickname: str, email: str):
-        """Checks if user exists, if not, inserts user to database."""
-
-        user = {"nickname": nickname, "email": email }
-        query = {'$or': [{'nickname': user['nickname']}, {'email': user['email']}]}
-        error = {"message": "could not insert user"}
-        status = False
-        payload = {"status": status, "error": error}
-
-        with mongo:
-
-            existing_user = mongo.db.users.find_one(query)
+        new_timestamp = datetime.datetime.utcnow()
+        
+        if new_timestamp.isoweekday() < 6:
             
-            if existing_user is None:
-             
-                try:
-                    mongo.db.users.insert_one(user)
-                    payload["error"] = None
-                    payload["status"] = True
-                    payload["user"] = user
-                
-                except Exception:
-                    error["message"] = "Could not insert user"
-                    
+            new_timestamp = new_timestamp.strftime("%Y-%m-%d")
+
+            registered = {"_id": ObjectId(), "timestamp": new_timestamp}
+
+            user = {"nickname": nickname, "email": email, "registered": registered}
+
+            if ex.get_user(nickname, email, mongo):
+                return ex.register_lunch(user, mongo, True)
+            
             else:
+                return ex.register_lunch(user, mongo)
+        
+        return {'status': False, 'error': {'message': 'lunch is only available on weekdays'}}
 
-                if (existing_user["nickname"] == nickname):
-                    error["message"] = "This nickname is already in use"
-                elif (existing_user["email"] == email):
-                    error["message"] = "This email is already in use"
+    @mutation.field("deleteUser")
+    def resolve_deleteUser(_, info, _id):
+        """Deletes specified entry
+        Args:
+            _id (str): document id of user to delete.
+        """
+        return ex.delete_user(_id, mongo)
 
-        return payload
-    
-    
+    @mutation.field("deleteTimestamp")
+    def resolve_deleteTimestamp(_, info, _id, timestamp):
+        """Deletes specified timestamp for a user
+        
+        Args:
+            _id (str): document id of user.
+            timestamp (Datetime): date to delete.
+        """
+        return ex.delete_timestamp(_id, timestamp, mongo)
+
+    @user.field("registered")
+    def resolve_registered(payload, info):
+        registered = []
+        for timestamp in payload["registered"]:
+            registered.append(timestamp)
+        return registered
 
     schema = make_executable_schema(type_defs, bindables)
 
@@ -113,7 +145,7 @@ def create_app(config = dev_config):
     @cross_origin()
     def graphql_playground():
         return PLAYGROUND_HTML, 200
-     
+
     @app.route("/graphql", methods=["POST"])
     # @cross_origin(headers=["Content-type", "Authorization"])
     # @requires_auth(config)

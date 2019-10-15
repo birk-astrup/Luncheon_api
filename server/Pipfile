@@ -12,7 +12,6 @@ flask = "*"
 environs = "*"
 flask-cors = "*"
 python-jose = {extras = ["pycryptodome"],version = "*"}
-quart = "*"
 pymongo = {extras = ["srv"],version = "*"}
 
 [requires]
