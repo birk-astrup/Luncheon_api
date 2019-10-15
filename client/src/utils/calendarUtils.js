@@ -23,7 +23,8 @@ export const createArrayOfDates = amount => {
   return array;
 };
 
-export const formatDate = date => {
+export const formatDate = incomingDate => {
+  const date = new Date(incomingDate);
   const year = date.getFullYear();
   const month = date.getMonth() + 1;
   const day = date.getDate();
@@ -36,22 +37,37 @@ export const handleCalendarFormating = arr => {
   const obj = {};
 
   for (let dates in arr) {
-    const year = arr[dates].getFullYear();
-    const month = arr[dates].getMonth() + 1;
-    const day = arr[dates].getDate();
+    const date = new Date(arr[dates]);
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
 
-    const nextDay = arr[parseInt(dates) + 1];
-    const hasNextDay = arr.includes(nextDay);
+    // console.log(year, month, day);
 
-    const dayBefore = arr[dates - 1];
-    const hasDayBefore = arr.includes(dayBefore);
+    const nextDay = parseInt(day) + 1;
+    const hasNextDay = arr
+      .map(dateTimes =>
+        new Date(dateTimes).getDate() === nextDay ? true : false,
+      )
+      .includes(true);
+
+    const dayBefore = day - 1;
+    const hasDayBefore = arr
+      .map(dateTimes =>
+        new Date(dateTimes).getDate() === dayBefore ? true : false,
+      )
+      .includes(true);
 
     // Checks if next date is a ending day of a period
     // (e.g. 22, 23, 25 where there is a gap between 23rd to 25th)
-    const endingDay = hasNextDay ? nextDay.getDate() !== day + 1 : true;
-    const startingDay = !hasDayBefore ? true : dayBefore.getDate() !== day - 1;
+    const endingDay = hasNextDay ? nextDay !== day + 1 : true;
+    const startingDay = !hasDayBefore ? true : dayBefore !== day - 1;
 
-    obj[`${year}-${month}-${day}`] = {
+    obj[
+      `${year}-${month.toString().padStart(2, 0)}-${day
+        .toString()
+        .padStart(2, 0)}`
+    ] = {
       startingDay,
       endingDay,
       color: '#5CBDAA',

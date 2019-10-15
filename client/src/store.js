@@ -1,12 +1,36 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import {useState} from 'react';
 import {createContainer} from 'unstated-next';
 
+import Auth0 from './utils/auth0';
+import SInfo from 'react-native-sensitive-info';
+
 const calendarReducer = (datesInit = []) => {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   let [dateList, setDateList] = useState(datesInit);
   let setDates = dates => setDateList(dates);
   let removeDates = () => setDateList([]);
   return {setDates, removeDates, dateList};
 };
 
-export default createContainer(calendarReducer);
+// Getting user data from auth0
+// @TODO change for azure AD
+const userReducer = (initUser = {nickname: '', email: ''}) => {
+  const [user, setUser] = useState(initUser);
+  const [isUserFetched, setIsUserFetched] = useState(false);
+
+  const fetchUser = async () => {
+    try {
+      const token = await SInfo.getItem('accessToken', {});
+      const u = await Auth0.auth.userInfo({token});
+      setUser({nickname: u.nickname, email: u.email});
+      setIsUserFetched(true);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  return {user, isUserFetched, fetchUser};
+};
+
+export const calendarContainer = createContainer(calendarReducer);
+export const userContainer = createContainer(userReducer);

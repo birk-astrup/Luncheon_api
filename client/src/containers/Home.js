@@ -1,80 +1,95 @@
 import React, {useEffect, useState} from 'react';
-import {useQuery} from '@apollo/react-hooks';
+import {useLazyQuery, useMutation} from '@apollo/react-hooks';
 import Icon from 'react-native-vector-icons/AntDesign';
 import {Text, View, TouchableOpacity} from 'react-native';
 
 import style from '../styles/main';
 import homeStyle from '../styles/homeStyles';
 
-import Auth0 from '../utils/auth0';
-import SInfo from 'react-native-sensitive-info';
-
-import DateStore from '../store';
-
-import timestampQuery from '../queries/getTimestamps';
+import TIMESTAMP_QUERY from '../queries/getTimestamps';
+import REGISTER_LUNCH from '../mutations/registerLunch';
 
 import {formatDate} from '../utils/calendarUtils';
+import {userContainer, calendarContainer} from '../store';
 
 export default ({navigation}) => {
-  const [name, setName] = useState(null);
   const [hasPaid, setHasPaid] = useState(false);
-  const [hasFetched, setHasFetched] = useState(false);
+  const userInformation = userContainer.useContainer();
+  const calendarInformation = calendarContainer.useContainer();
 
   // format date
   const today = new Date();
   const formattedTodaysDate = formatDate(today);
 
-  const query = useQuery(timestampQuery);
+  const [registerLunch] = useMutation(REGISTER_LUNCH, {
+    variables: {
+      nickname: userInformation.user.nickname,
+      email: userInformation.user.email,
+    },
+    refetchQueries: ['getUser'],
+  });
 
-  console.log(query);
-  // Store usage
-  const storage = DateStore.useContainer();
+  const [getTimestamps, {called, loading, data}] = useLazyQuery(
+    TIMESTAMP_QUERY,
+    {
+      variables: {
+        nickname: userInformation.user.nickname,
+        email: userInformation.user.email,
+      },
+    },
+  );
 
-  const getName = async () => {
-    try {
-      const token = await SInfo.getItem('accessToken', {});
-      const user = await Auth0.auth.userInfo({token});
-      setName(user.nickname);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  // Recives data from scanner
+  // Recives data from scanner and registers lunch
   useEffect(() => {
     const dataFromQR = navigation.getParam('data', 'No data recived');
-    if (dataFromQR === 'netcompany') {
-      setHasPaid(true);
-      // @TODO send in timestamp for today.
+    if (dataFromQR === 'www.netcompany.com') {
+      userInformation.isUserFetched && registerLunch();
+      getTimestamps();
     }
-  }, [navigation]);
+  }, [getTimestamps, navigation, registerLunch, userInformation.isUserFetched]);
 
+  // Fetches timestamps using LazyQuery
   useEffect(() => {
-    // @TODO fetch dates to state
-    if (!hasFetched) {
-      if (query.data && query.data.length > 0) {
-        storage.setDates(query.data);
+    if (userInformation.isUserFetched) {
+      if (!loading && !called) {
+        getTimestamps();
+      } else if (!loading && called) {
+        if (data && data.user.user.length > 0) {
+          const reg = data.user.user[0].registered
+            ? data.user.user[0].registered
+            : [];
 
-        for (let item in query.data) {
-          if (formatDate(item.registered) === formattedTodaysDate) {
-            setHasPaid(true);
+          calendarInformation.setDates(reg);
+
+          for (let item of reg) {
+            formatDate(item) === formattedTodaysDate && setHasPaid(true);
           }
         }
       }
-
-      setHasFetched(true);
     }
-  }, [formattedTodaysDate, hasFetched, query.data, storage]);
+  }, [
+    calendarInformation,
+    called,
+    data,
+    formattedTodaysDate,
+    getTimestamps,
+    loading,
+    userInformation.isUserFetched,
+  ]);
 
-  // Mounting cycle
+  // Mounting cycle for fetching user
   useEffect(() => {
-    getName();
-  }, []);
+    userInformation.fetchUser();
+  }, [userInformation]);
 
   return (
     <View style={homeStyle.container}>
       <View style={homeStyle.wrapper}>
-        <Text style={style.largeHeaderText}>God morgen, {name}</Text>
+        {userInformation.isUserFetched && (
+          <Text style={style.largeHeaderText}>
+            God morgen, {userInformation.user.nickname}
+          </Text>
+        )}
 
         {!hasPaid ? (
           <>
