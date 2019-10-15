@@ -21,29 +21,10 @@ def get_user(nickname, email, mongo):
         return user
 
 def check_if_today_is_registered(user, mongo):
-    #TODO: validate if date is weekday
-    #day = user["registered"]["timestamp"].day
-    #month = user["registered"]["timestamp"].month
-    #year = user["registered"]["timestamp"].year
 
     timestamp = user["registered"]["timestamp"]
 
     result = {"error": None, "data": None}
-
-    #pipeline = [
-    #    {"$match": { "$or": [{"nickname": user["nickname"]}, {"email": user["email"]}]}},
-    #    {"$unwind": {"path": "$registered", "preserveNullAndEmptyArrays": True}},
-    #    {"$project": 
-    #        {"_id": 0, "today": 
-    #            {"$and": [
-    #                {"$eq": [{"$dayOfMonth": "$registered"}, day]},
-    #                {"$eq": [{ "$month": "$registered"}, month]},
-    #                {"$eq": [{ "$year": "$registered"}, year]}
-    #            ]}
-    #        }
-    #    },
-    #    {"$match": {"today": True}}
-    #]
 
     pipeline = [
         {"$match": { "$and": [{"nickname": user["nickname"]}, {"email": user["email"]}]}},
@@ -114,7 +95,6 @@ def delete_user(_id, mongo):
     status = False
     with mongo:
         try:
-            #result = mongo.db.users.delete_one({"$and" :[{"nickname": nickname, "email": email}]})
             result = mongo.db.users.delete_one({"_id": ObjectId(_id)})
             print(result)
             status = True
@@ -123,13 +103,20 @@ def delete_user(_id, mongo):
             return {"status": status, "error": {"message": e}}
 
 def delete_timestamp(_id, timestamp, mongo):
-    pass
-#    status = False
-#    filter_by = {"_id": ObjectId(_id)}
-#    delete = {"$pull": {"registered": timestamp}}
-#    with mongo:
-#        try:
-#            result = mongo.db.users.update_one(filter_by, delete)
+    
+    status = False
+    filter_by = {"_id": ObjectId(_id)}
+    delete = {"$pull": {"registered": {"timestamp": timestamp}}}
+    with mongo:
+        try:
+            mongo.db.users.update_one(filter_by, delete)
+            status = True
+            return {"status": status}
+
+        except Exception as e:
+
+            return {"status": status, "error": {"message": e}}
+
 
 
     
