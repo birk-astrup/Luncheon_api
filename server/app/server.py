@@ -30,9 +30,10 @@ def create_app(config = dev_config):
     query = ObjectType("Query")
     mutation = ObjectType("Mutation")
     user = ObjectType("User")
+    registered = ObjectType("Registered")
     dateScalar = ScalarType("Datetime")
 
-    bindables = [query, mutation, user, dateScalar]
+    bindables = [query, mutation, user, registered, dateScalar]
 
     @dateScalar.serializer
     def serialize_dateScalar(value):
@@ -86,7 +87,6 @@ def create_app(config = dev_config):
         """Adds timestamp for registration to the database"""
 
         new_timestamp = datetime.datetime.utcnow()
-        print(new_timestamp.isoweekday())
         
         if new_timestamp.isoweekday() < 6:
             
@@ -124,7 +124,6 @@ def create_app(config = dev_config):
 
     @user.field("registered")
     def resolve_registered(payload, info):
-        print(payload)
         registered = []
         for timestamp in payload["registered"]:
             registered.append(timestamp)

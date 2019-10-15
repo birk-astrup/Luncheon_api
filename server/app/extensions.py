@@ -28,33 +28,27 @@ def check_if_today_is_registered(user, mongo):
 
     pipeline = [
         {"$match": { "$and": [{"nickname": user["nickname"]}, {"email": user["email"]}]}},
-        {"$unwind": {"path": "$registered", "preserveNullAndEmptyArrays": True}},
-        {"$project": 
-            {"_id": 0, 
-            "today": {"$registered.timestamp": timestamp}}
-        },
-        {"$match": {"today": True}}
+        {"$unwind": {"path": "$registered"}},
+        {"$project": { "_id": 0, "today": {"$cond": [{"$eq": ["$registered.timestamp", timestamp]}, "True", "False"]}}}
     ]
 
     with mongo:
         try:
             for data in mongo.db.users.aggregate(pipeline):
-                
-                if data["today"] is True:
+
+                if data["today"] == "True":
                     result["data"] = True
                     result["error"] = {"message": "lunch already registered"}
-                
 
-                else:
-                    result["data"] = False
-                
-                return result
+            
+            result["data"] = False
 
-        except Exception:
+            return result
+
+        except Exception as e:
+            print(e)
             result["error"] = {"message": "could not check if date matched"}
-    
-    
-    return result
+            return result
 
 def register_lunch(user, mongo, user_exists=False):
 
