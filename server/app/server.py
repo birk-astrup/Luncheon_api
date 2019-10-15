@@ -30,9 +30,10 @@ def create_app(config = dev_config):
     query = ObjectType("Query")
     mutation = ObjectType("Mutation")
     user = ObjectType("User")
+    registered = ObjectType("Registered")
     dateScalar = ScalarType("Datetime")
 
-    bindables = [query, mutation, user, dateScalar]
+    bindables = [query, mutation, user, registered, dateScalar]
 
     @dateScalar.serializer
     def serialize_dateScalar(value):
