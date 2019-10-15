@@ -1,30 +1,40 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
+import {useLazyQuery} from '@apollo/react-hooks';
 
 import Header from './components/Header/Header';
-import Container from './components/Container/Container';
-
 import Period from './components/Period/Period';
+import Container from './components/Container/Container';
+import Purchases from './components/Purchases/Purchases';
 import MonthPicker from './components/MonthPicker/MonthPicker';
 
-import './style/main.scss';
-import Purchases from './components/Purchases/Purchases';
-import { useQuery } from '@apollo/react-hooks';
 import GET_USERS from './queries/getUsers';
+import {calculateResultForMonth} from './utils/calculations';
+
+import './style/main.scss';
 
 function App() {
-  const { data } = useQuery(GET_USERS)
+  const [month, setMonth] = useState('January');
+  const [formattedUsers, setFormattedUsers] = useState([])
+  const [getUsers, {data, loading, called}] = useLazyQuery(GET_USERS)
 
-  const monthPicked = (monthPicked) => {
-    
-  }
+  // Gets users on entry 
+  useEffect(() => {
+    !loading && !called && getUsers()
+  }, [called, getUsers, loading]);
+
+  // Sorting users when data is recieved
+  useEffect(() => {
+    const sortedUsersByMonth = !loading && called && data && calculateResultForMonth(data, month);
+    setFormattedUsers(sortedUsersByMonth);
+  }, [called, data, loading, month])
 
   return (
     <div className="App">
       <Header/>
 
       <Container>
-        <Period />
-        <MonthPicker monthPicked={monthPicked} />
+        <Period amountOfUsers={formattedUsers.length}/>
+        <MonthPicker monthPicked={m => setMonth(m)} />
         <Purchases />
       </Container>
     </div>

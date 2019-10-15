@@ -1,9 +1,9 @@
-import React from 'react';
+import React, {memo} from 'react';
 
 import './Period.scss'
 import {PERIOD, CURRENCY, INCOME_THIS_MONTH, USERS_THIS_MONTH, EXPORT} from '../../constants/constants';
 
-export default () => (
+export default memo(({amountOfUsers = 0}) => (
   <>
     <div className="period-headline">
       <div>
@@ -26,9 +26,9 @@ export default () => (
 
       {/* Brukere */}
       <div>
-        <h1 className="big-title">4</h1>
+        <h1 className="big-title">{amountOfUsers}</h1>
         <p className="primary-subtitle">{USERS_THIS_MONTH}</p>
       </div>
     </div>
   </>
-)
+))
