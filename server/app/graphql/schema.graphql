@@ -10,19 +10,23 @@ interface Payload {
 }
 
 type Query {
-    user(nickname: String!, email: String!): UserPayload
+    #user(nickname: String!, email: String!): UserPayload
+    user(_id: ID!): UserPayload
     getUsers: UserPayload
 }
 
 type Mutation {
     registerLunch(nickname: String!, email: String!): UserPayload!
+    #deleteUser(nickname: String!, email: String!): UserPayload!
+    deleteUser(_id: ID!): UserPayload!
+    deleteTimestamp(_id: ID!, timestamp: Datetime!): UserPayload!
 }
 
 type User implements Node {
     _id: ID!
     nickname: String!
     email: String!
-    registered: [Datetime]
+    registered: [Registered]
 }
 
 type UserPayload implements Payload {
@@ -31,7 +35,13 @@ type UserPayload implements Payload {
     user: [User]
 }
 
+type Registered implements Node {
+    _id: ID!
+    timestamp: String!
+}
+
 type Error {
     message: String
 }
+
 
