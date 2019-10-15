@@ -1,10 +1,11 @@
 import React from 'react';
 
 import './Purchases.scss';
+import {AMOUNT_OF_PURCHASES} from '../../constants/constants';
 
 export default () => (
   <>
-    <h2 className="primary-title">Antall kjøp (35)</h2>
+    <h2 className="primary-title">{AMOUNT_OF_PURCHASES} (35)</h2>
     <div>
       <div className="purchases-table-box">
         <p className="primary-subtitle">blabla</p>
