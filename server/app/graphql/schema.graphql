@@ -14,7 +14,7 @@ type Query {
 type Mutation {
     registerLunch(_id: ID!, nickname: String!, email: String!): UserPayload!
     deleteUser(_id: ID!): UserPayload!
-    deleteTimestamp(_id: ID!, timestamp: Datetime!): UserPayload!
+    deleteTimestamp(user_id: ID!, timestamp_id: ID!): UserPayload!
 }
 
 type User {

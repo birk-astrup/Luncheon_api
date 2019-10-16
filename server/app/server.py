@@ -113,14 +113,14 @@ def create_app(config = dev_config):
         return ex.delete_user(_id, mongo)
 
     @mutation.field("deleteTimestamp")
-    def resolve_deleteTimestamp(_, info, _id, timestamp):
+    def resolve_deleteTimestamp(_, info, user_id, timestamp_id):
         """Deletes specified timestamp for a user
         
         Args:
-            _id (str): document id of user.
-            timestamp (Datetime): date to delete.
+            user_id (str): document id of user.
+            timestamp_id (str): id of date to delete.
         """
-        return ex.delete_timestamp(_id, timestamp, mongo)
+        return ex.delete_timestamp(user_id, timestamp_id, mongo)
 
     @user.field("registered")
     def resolve_registered(payload, info):
