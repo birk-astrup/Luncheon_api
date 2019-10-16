@@ -83,7 +83,7 @@ def create_app(config = dev_config):
     
     #TODO: Implement lambda functions in method
     @mutation.field("registerLunch")
-    def resolve_register_lunch(_, info, nickname, email):
+    def resolve_register_lunch(_, info, nickname, email, _id):
         """Adds timestamp for registration to the database"""
 
         new_timestamp = datetime.datetime.utcnow()
@@ -94,7 +94,7 @@ def create_app(config = dev_config):
 
             registered = {"_id": ObjectId(), "timestamp": new_timestamp}
 
-            user = {"nickname": nickname, "email": email, "registered": registered}
+            user = {"_id": ObjectId(_id) ,"nickname": nickname, "email": email, "registered": registered}
 
             if ex.get_user(nickname, email, mongo):
                 return ex.register_lunch(user, mongo, True)

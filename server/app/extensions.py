@@ -27,7 +27,7 @@ def check_if_today_is_registered(user, mongo):
     result = {"error": None, "data": None}
 
     pipeline = [
-        {"$match": { "$and": [{"nickname": user["nickname"]}, {"email": user["email"]}]}},
+        {"$match": {"_id": user["_id"]}},
         {"$unwind": {"path": "$registered"}},
         {"$project": { "_id": 0, "today": {"$cond": [{"$eq": ["$registered.timestamp", timestamp]}, "True", "False"]}}}
     ]
@@ -52,10 +52,11 @@ def check_if_today_is_registered(user, mongo):
 
 def register_lunch(user, mongo, user_exists=False):
 
-    filter_by = {"$and": [{"nickname": user["nickname"]}, {"email": user["email"]}]}
+    filter_by = {"_id": user["_id"]}
 
     update_to_apply = {"$set": 
         {
+            "_id": user["_id"],
             "nickname": user["nickname"], 
             "email": user["email"]
         },
