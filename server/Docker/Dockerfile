@@ -1,14 +1,13 @@
-FROM python:3.7-alpine as base
+FROM python:3.7-alpine
 
-
-FROM base as builder
+WORKDIR /luncheon
 
 RUN pip install pipenv
 
 COPY . .
 
-RUN pipenv install
+RUN pipenv install && pipenv install gunicorn
 
 EXPOSE 80
 
-CMD ["gunicorn", "-w 2", "run:app"]
+CMD ["gunicorn", "-b", "0.0.0.0:80", "run:app"]
