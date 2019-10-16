@@ -1,13 +1,13 @@
-FROM python:3.7-alpine
+FROM python:3.7-slim-buster as base
 
 WORKDIR /luncheon
 
-RUN pip install pipenv
+COPY requirements.txt .
+
+RUN pip install -r requirements.txt
 
 COPY . .
 
-RUN pipenv install && pipenv install gunicorn
-
 EXPOSE 80
 
-CMD ["gunicorn", "-b", "0.0.0.0:80", "run:app"]
+CMD ["gunicorn", "0.0.0.0:80", "-w 4", "run:app"]
