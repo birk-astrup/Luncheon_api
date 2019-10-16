@@ -1,10 +1,13 @@
 import {gql} from 'apollo-boost';
 
 export default gql`
-  query getUser($nickname: String!, $email: String!) {
-    user(nickname: $nickname, email: $email) {
+  query getUser($id: ID!) {
+    user(_id: $id) {
       user {
-        registered
+        registered {
+          _id
+          timestamp
+        }
       }
     }
   }

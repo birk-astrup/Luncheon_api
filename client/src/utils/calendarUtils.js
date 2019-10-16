@@ -32,8 +32,14 @@ export const formatDate = incomingDate => {
   return `${year}-${month}-${day}`;
 };
 
-// Takes array of new Date()
 export const handleCalendarFormating = arr => {
+  const obj = {};
+
+  return obj;
+};
+
+// Takes array of new Date()
+export const handleCalendarFormatingObsolete = arr => {
   const obj = {};
 
   for (let dates in arr) {

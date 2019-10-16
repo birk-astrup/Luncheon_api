@@ -2,6 +2,7 @@ import {MONTH_NAMES} from '../constants/constants';
 
 export const calculateResultForMonth = (users, month) => {
   const userArray = [];
+  console.log(users)
   
   for (let m in MONTH_NAMES) {
     if (MONTH_NAMES[m] === month) {

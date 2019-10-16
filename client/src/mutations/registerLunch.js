@@ -1,10 +1,12 @@
 import {gql} from 'apollo-boost';
 
 export default gql`
-  mutation registerForLunch($nickname: String!, $email: String!) {
-    registerLunch(nickname: $nickname, email: $email) {
+  mutation registerForLunch($id: ID!, $nickname: String!, $email: String!) {
+    registerLunch(_id: $id, nickname: $nickname, email: $email) {
       user {
-        registered
+        registered {
+          _id
+        }
       }
     }
   }

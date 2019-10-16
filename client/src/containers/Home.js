@@ -15,80 +15,68 @@ import {userContainer, calendarContainer} from '../store';
 export default ({navigation}) => {
   const [hasPaid, setHasPaid] = useState(false);
   const userInformation = userContainer.useContainer();
-  const calendarInformation = calendarContainer.useContainer();
+  const calendar = calendarContainer.useContainer();
+  const {isUserFetched, fetchUser, user} = userInformation;
 
   // format date
   const today = new Date();
   const formattedTodaysDate = formatDate(today);
 
-  const [registerLunch] = useMutation(REGISTER_LUNCH, {
-    variables: {
-      nickname: userInformation.user.nickname,
-      email: userInformation.user.email,
-    },
-    refetchQueries: ['getUser'],
-  });
+  const [registerLunch] = useMutation(REGISTER_LUNCH);
 
-  const [getTimestamps, {called, loading, data}] = useLazyQuery(
+  const [getTimestamps, {data, called, loading}] = useLazyQuery(
     TIMESTAMP_QUERY,
-    {
-      variables: {
-        nickname: userInformation.user.nickname,
-        email: userInformation.user.email,
-      },
-    },
   );
+
+  useEffect(() => {
+    if (called && !loading) {
+      if (data.user.user) {
+        const registeredLunches = data.user.user[0].registered;
+        if (registeredLunches.length > 0) {
+          calendar.setDates(data.user.user[0].registered);
+
+          for (let item of registeredLunches) {
+            item.timestamp === formattedTodaysDate && setHasPaid(true);
+          }
+        } else {
+          calendar.setDates([]);
+        }
+      }
+    }
+  }, [calendar, called, data, formattedTodaysDate, loading, user]);
 
   // Recives data from scanner and registers lunch
   useEffect(() => {
     const dataFromQR = navigation.getParam('data', 'No data recived');
     if (dataFromQR === 'www.netcompany.com') {
-      userInformation.isUserFetched && registerLunch();
-      getTimestamps();
+      isUserFetched &&
+        registerLunch({
+          variables: {
+            id: user.userId,
+            nickname: user.nickname,
+            email: user.email,
+          },
+          refetchQueries: ['getUser'],
+        });
     }
-  }, [getTimestamps, navigation, registerLunch, userInformation.isUserFetched]);
+  }, [isUserFetched, navigation, registerLunch, user]);
 
-  // Fetches timestamps using LazyQuery
+  // Fires once
   useEffect(() => {
-    if (userInformation.isUserFetched) {
-      if (!loading && !called) {
-        getTimestamps();
-      } else if (!loading && called) {
-        if (data && data.user.user.length > 0) {
-          const reg = data.user.user[0].registered
-            ? data.user.user[0].registered
-            : [];
+    fetchUser();
+    // Needs to be like this to not fire 600 times.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-          calendarInformation.setDates(reg);
-
-          for (let item of reg) {
-            formatDate(item) === formattedTodaysDate && setHasPaid(true);
-          }
-        }
-      }
-    }
-  }, [
-    calendarInformation,
-    called,
-    data,
-    formattedTodaysDate,
-    getTimestamps,
-    loading,
-    userInformation.isUserFetched,
-  ]);
-
-  // Mounting cycle for fetching user
   useEffect(() => {
-    userInformation.fetchUser();
-  }, [userInformation]);
+    isUserFetched && getTimestamps({variables: {id: user.userId}});
+  }, [getTimestamps, isUserFetched, user.userId]);
 
   return (
     <View style={homeStyle.container}>
       <View style={homeStyle.wrapper}>
-        {userInformation.isUserFetched && (
-          <Text style={style.largeHeaderText}>
-            God morgen, {userInformation.user.nickname}
-          </Text>
+        {isUserFetched && (
+          <Text style={style.largeHeaderText}>God morgen, {user.nickname}</Text>
         )}
 
         {!hasPaid ? (

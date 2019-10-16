@@ -14,7 +14,7 @@ const calendarReducer = (datesInit = []) => {
 
 // Getting user data from auth0
 // @TODO change for azure AD
-const userReducer = (initUser = {nickname: '', email: ''}) => {
+const userReducer = (initUser = {nickname: '', email: '', userId: ''}) => {
   const [user, setUser] = useState(initUser);
   const [isUserFetched, setIsUserFetched] = useState(false);
 
@@ -22,10 +22,18 @@ const userReducer = (initUser = {nickname: '', email: ''}) => {
     try {
       const token = await SInfo.getItem('accessToken', {});
       const u = await Auth0.auth.userInfo({token});
-      setUser({nickname: u.nickname, email: u.email});
+      const userId = u.sub.split('|')[1];
+
       setIsUserFetched(true);
-    } catch (error) {
-      console.log(error);
+      console.log(u);
+
+      setUser({
+        nickname: u.nickname,
+        email: u.email,
+        userId,
+      });
+    } catch (e) {
+      console.log(e);
     }
   };
 
