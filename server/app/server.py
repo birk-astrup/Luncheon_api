@@ -1,8 +1,7 @@
-from ariadne import ObjectType, graphql_sync, make_executable_schema, load_schema_from_path, ScalarType, EnumType
+from ariadne import ObjectType, graphql_sync, make_executable_schema, load_schema_from_path, ScalarType
 from ariadne.constants import PLAYGROUND_HTML
 from .auth import requires_auth
 from bson.objectid import ObjectId
-from .config import dev_config, prod_config
 from .errors import AuthError, CreateUserError
 import datetime
 from flask import Flask, request, jsonify, _request_ctx_stack
@@ -16,15 +15,11 @@ from pymongo import MongoClient
 from urllib.request import urlopen
 
 
-def create_app(config = dev_config):
+def create_app():
 
     app = Flask(__name__)
 
-    if "FLASK_ENV" in os.environ and os.environ["FLASK_ENV"] == "production":
-        config = prod_config
-    app.config.from_object(config)
-
-    mongo = MongoClient(config.MONGO_URI)
+    mongo = MongoClient(os.environ["MONGO_URI"])
 
     type_defs = load_schema_from_path('app/graphql/schema.graphql')
     query = ObjectType("Query")
