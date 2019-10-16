@@ -97,11 +97,11 @@ def delete_user(_id, mongo):
         except Exception as e:
             return {"status": status, "error": {"message": e}}
 
-def delete_timestamp(_id, timestamp, mongo):
+def delete_timestamp(user_id, timestamp_id, mongo):
     
     status = False
-    filter_by = {"_id": ObjectId(_id)}
-    delete = {"$pull": {"registered": {"timestamp": timestamp}}}
+    filter_by = {"_id": ObjectId(user_id)}
+    delete = {"$pull": {"registered": {"_id": ObjectId(timestamp_id)}}}
     with mongo:
         try:
             mongo.db.users.update_one(filter_by, delete)
