@@ -30,7 +30,7 @@ export default ({navigation}) => {
 
   useEffect(() => {
     if (called && !loading) {
-      if (data.user.user) {
+      if (data && data.user.user) {
         const registeredLunches = data.user.user[0].registered;
         if (registeredLunches.length > 0) {
           calendar.setDates(data.user.user[0].registered);

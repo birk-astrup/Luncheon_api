@@ -24,14 +24,13 @@ const userReducer = (initUser = {nickname: '', email: '', userId: ''}) => {
       const u = await Auth0.auth.userInfo({token});
       const userId = u.sub.split('|')[1];
 
-      setIsUserFetched(true);
-      console.log(u);
-
       setUser({
         nickname: u.nickname,
         email: u.email,
         userId,
       });
+
+      setIsUserFetched(true);
     } catch (e) {
       console.log(e);
     }

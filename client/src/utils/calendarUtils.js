@@ -35,21 +35,13 @@ export const formatDate = incomingDate => {
 export const handleCalendarFormating = arr => {
   const obj = {};
 
-  return obj;
-};
-
-// Takes array of new Date()
-export const handleCalendarFormatingObsolete = arr => {
-  const obj = {};
-
   for (let dates in arr) {
-    const date = new Date(arr[dates]);
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
+    let date = arr[dates].timestamp.split('-');
+    const year = date[0],
+      month = date[1],
+      day = date[2];
 
-    // console.log(year, month, day);
-
+    // eslint-disable-next-line radix
     const nextDay = parseInt(day) + 1;
     const hasNextDay = arr
       .map(dateTimes =>
