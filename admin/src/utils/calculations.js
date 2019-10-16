@@ -1,22 +1,26 @@
 import {MONTH_NAMES} from '../constants/constants';
 
-export const calculateResultForMonth = (users, month) => {
+export const calculateResultForMonth = (arr, month) => {
   const userArray = [];
-  console.log(users)
+  let payments = 0;
   
   for (let m in MONTH_NAMES) {
     if (MONTH_NAMES[m] === month) {
       // Loop through users
-      for(let user in users) {
+      for(let user of arr.getUsers.user) {
         const tempUser = {
+          id: user._id,
           nickname: user.nickname,
           email: user.email,
           registered: []
         }
 
-        for (let timestamp in user.registered) {
-          const date = new Date(timestamp);
-          date.getMonth() === m && tempUser.registered.push(timestamp);
+        for (let stamp of user.registered) {
+          const date = new Date(stamp.timestamp);
+          if (date.getMonth() === parseInt(m)) { 
+            tempUser.registered.push(stamp);
+            payments++;
+          }
         }
 
         tempUser.registered.length > 0 && userArray.push(tempUser);
@@ -24,5 +28,8 @@ export const calculateResultForMonth = (users, month) => {
     }
   }
 
-  return userArray;
+  return {
+    payments,
+    users: userArray
+  };
 }

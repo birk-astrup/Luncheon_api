@@ -3,7 +3,7 @@ import React, {memo} from 'react';
 import './Period.scss'
 import {PERIOD, CURRENCY, INCOME_THIS_MONTH, USERS_THIS_MONTH, EXPORT} from '../../constants/constants';
 
-export default memo(({amountOfUsers = 0}) => (
+export default memo(({amountOfUsers = 0, amountOfPayments = 0}) => (
   <>
     <div className="period-headline">
       <div>
@@ -18,7 +18,7 @@ export default memo(({amountOfUsers = 0}) => (
     <div className="period-box">
       {/* Inntekt */}
       <div>
-        <h1 className="big-title">1440 {CURRENCY}</h1>
+        <h1 className="big-title">{amountOfPayments * 40} {CURRENCY}</h1>
         <p className="primary-subtitle">{INCOME_THIS_MONTH}</p>
       </div>
 

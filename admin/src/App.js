@@ -14,7 +14,7 @@ import './style/main.scss';
 
 function App() {
   const [month, setMonth] = useState('January');
-  const [formattedUsers, setFormattedUsers] = useState([])
+  const [information, setInformation] = useState([])
   const [getUsers, {data, loading, called}] = useLazyQuery(GET_USERS)
 
   // Gets users on entry 
@@ -25,17 +25,20 @@ function App() {
   // Sorting users when data is recieved
   useEffect(() => {
     const sortedUsersByMonth = !loading && called && data && calculateResultForMonth(data, month);
-    setFormattedUsers(sortedUsersByMonth);
+    setInformation(sortedUsersByMonth);
   }, [called, data, loading, month])
 
   return (
     <div className="App">
       <Header/>
-
       <Container>
-        <Period amountOfUsers={formattedUsers.length}/>
-        <MonthPicker monthPicked={m => setMonth(m)} />
-        <Purchases />
+        {information.users && 
+        <>
+          <Period amountOfPayments={information.payments} amountOfUsers={information.users.length}/>
+          <MonthPicker monthPicked={m => setMonth(m)} />
+          <Purchases info={information}/> 
+        </>
+      }
       </Container>
     </div>
   );
