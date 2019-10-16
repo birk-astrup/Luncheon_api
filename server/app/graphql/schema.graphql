@@ -1,8 +1,5 @@
 scalar Datetime
 
-interface Node {
-    _id: ID!
-}
 
 interface Payload {
     status: Boolean!
@@ -10,19 +7,17 @@ interface Payload {
 }
 
 type Query {
-    #user(nickname: String!, email: String!): UserPayload
     user(_id: ID!): UserPayload
     getUsers: UserPayload
 }
 
 type Mutation {
-    registerLunch(nickname: String!, email: String!): UserPayload!
-    #deleteUser(nickname: String!, email: String!): UserPayload!
+    registerLunch(_id: ID!, nickname: String!, email: String!): UserPayload!
     deleteUser(_id: ID!): UserPayload!
     deleteTimestamp(_id: ID!, timestamp: Datetime!): UserPayload!
 }
 
-type User implements Node {
+type User {
     _id: ID!
     nickname: String!
     email: String!
@@ -35,13 +30,13 @@ type UserPayload implements Payload {
     user: [User]
 }
 
-type Registered implements Node {
+type Registered {
     _id: ID!
     timestamp: String!
 }
 
 type Error {
-    message: String
+    message: String!
 }
 
 
