@@ -3,7 +3,9 @@ from flask import request, jsonify, _request_ctx_stack
 from functools import wraps
 from jose import jwt
 import json
+import os
 from urllib.request import urlopen
+
 
 def get_token_auth_header():
         """Obtains the Access Token from the Authorization header."""
@@ -37,14 +39,14 @@ def get_token_auth_header():
         token = parts[1]
         return token
 
-def requires_auth(config):
+def requires_auth():
 
     def decorate_function(function):
 
         @wraps(function)
         def decorated(*args, **kwargs):
             token = get_token_auth_header()
-            jsonurl = urlopen("https://"+config.DOMAIN+"/.well-known/jwks.json")
+            jsonurl = urlopen("https://"+os.environ["DOMAIN"]+"/.well-known/jwks.json")
             jwks = json.loads(jsonurl.read())
             unverified_header = jwt.get_unverified_header(token)
             rsa_key = {}
@@ -63,9 +65,9 @@ def requires_auth(config):
                     payload = jwt.decode(
                     token,
                     rsa_key,
-                    algorithms=config.ALGORITHM,
-                    audience=config.AUDIENCE,
-                    issuer="https://"+config.DOMAIN+"/"
+                    algorithms=os.environ["ALGORITHM"],
+                    audience=os.environ["AUDIENCE"],
+                    issuer="https://"+os.environ["DOMAIN"]+"/"
                     )
                     
                     

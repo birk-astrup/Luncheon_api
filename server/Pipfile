@@ -13,6 +13,7 @@ environs = "*"
 flask-cors = "*"
 python-jose = {extras = ["pycryptodome"],version = "*"}
 pymongo = {extras = ["srv"],version = "*"}
+gunicorn = "*"
 
 [requires]
 python_version = "3.7"
