@@ -1,80 +1,81 @@
 import React, {useEffect, useState} from 'react';
-import {useQuery} from '@apollo/react-hooks';
+import {useLazyQuery, useMutation} from '@apollo/react-hooks';
 import Icon from 'react-native-vector-icons/AntDesign';
 import {Text, View, TouchableOpacity} from 'react-native';
 
 import style from '../styles/main';
 import homeStyle from '../styles/homeStyles';
 
-import Auth0 from '../utils/auth0';
-import SInfo from 'react-native-sensitive-info';
-
-import DateStore from '../store';
-
-import timestampQuery from '../queries/getTimestamps';
+import TIMESTAMP_QUERY from '../queries/getTimestamps';
+import REGISTER_LUNCH from '../mutations/registerLunch';
 
 import {formatDate} from '../utils/calendarUtils';
+import {userContainer, calendarContainer} from '../store';
 
 export default ({navigation}) => {
-  const [name, setName] = useState(null);
   const [hasPaid, setHasPaid] = useState(false);
-  const [hasFetched, setHasFetched] = useState(false);
+  const userInformation = userContainer.useContainer();
+  const calendar = calendarContainer.useContainer();
+  const {isUserFetched, fetchUser, user} = userInformation;
 
   // format date
   const today = new Date();
   const formattedTodaysDate = formatDate(today);
 
-  const query = useQuery(timestampQuery);
+  const [registerLunch] = useMutation(REGISTER_LUNCH);
 
-  console.log(query);
-  // Store usage
-  const storage = DateStore.useContainer();
-
-  const getName = async () => {
-    try {
-      const token = await SInfo.getItem('accessToken', {});
-      const user = await Auth0.auth.userInfo({token});
-      setName(user.nickname);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  // Recives data from scanner
-  useEffect(() => {
-    const dataFromQR = navigation.getParam('data', 'No data recived');
-    if (dataFromQR === 'netcompany') {
-      setHasPaid(true);
-      // @TODO send in timestamp for today.
-    }
-  }, [navigation]);
+  const [getTimestamps, {data, called, loading}] = useLazyQuery(
+    TIMESTAMP_QUERY,
+  );
 
   useEffect(() => {
-    // @TODO fetch dates to state
-    if (!hasFetched) {
-      if (query.data && query.data.length > 0) {
-        storage.setDates(query.data);
+    if (called && !loading) {
+      if (data && data.user.user) {
+        const registeredLunches = data.user.user[0].registered;
+        if (registeredLunches.length > 0) {
+          calendar.setDates(data.user.user[0].registered);
 
-        for (let item in query.data) {
-          if (formatDate(item.registered) === formattedTodaysDate) {
-            setHasPaid(true);
+          for (let item of registeredLunches) {
+            item.timestamp === formattedTodaysDate && setHasPaid(true);
           }
         }
       }
-
-      setHasFetched(true);
     }
-  }, [formattedTodaysDate, hasFetched, query.data, storage]);
+  }, [calendar, called, data, formattedTodaysDate, loading]);
 
-  // Mounting cycle
+  // Recives data from scanner and registers lunch
   useEffect(() => {
-    getName();
+    const dataFromQR = navigation.getParam('data', 'No data recived');
+    if (dataFromQR === 'www.netcompany.com') {
+      isUserFetched &&
+        registerLunch({
+          variables: {
+            id: user.userId,
+            nickname: user.nickname,
+            email: user.email,
+          },
+          refetchQueries: ['getUser'],
+        });
+    }
+  }, [isUserFetched, navigation, registerLunch, user]);
+
+  // Fires once
+  useEffect(() => {
+    fetchUser();
+    // Needs to be like this to not fire 600 times.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    isUserFetched && getTimestamps({variables: {id: user.userId}});
+  }, [getTimestamps, isUserFetched, user.userId]);
 
   return (
     <View style={homeStyle.container}>
       <View style={homeStyle.wrapper}>
-        <Text style={style.largeHeaderText}>God morgen, {name}</Text>
+        {isUserFetched && (
+          <Text style={style.largeHeaderText}>God morgen, {user.nickname}</Text>
+        )}
 
         {!hasPaid ? (
           <>
