@@ -2,13 +2,15 @@
 access.py
 test_api.py
 
-#PY CACHE
+# PY CACHE
 __pycache__/
 
-#ENV file
+# ENV file
 .env
 docker.env
 
+# DOCKER
+docker-compose.yml
 # OSX
 #
 .DS_Store

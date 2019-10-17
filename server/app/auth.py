@@ -39,7 +39,7 @@ def get_token_auth_header():
         token = parts[1]
         return token
 
-def requires_auth(config):
+def requires_auth():
 
     def decorate_function(function):
 

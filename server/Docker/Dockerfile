@@ -10,4 +10,4 @@ COPY . .
 
 EXPOSE 80
 
-CMD ["gunicorn", "0.0.0.0:80", "-w 4", "run:app"]
+CMD ["gunicorn", "-b", "0.0.0.0:80", "-w", "4", "--threads", "4", "wsgi:app"]

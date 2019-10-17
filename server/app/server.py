@@ -2,7 +2,7 @@ from ariadne import ObjectType, graphql_sync, make_executable_schema, load_schem
 from ariadne.constants import PLAYGROUND_HTML
 from .auth import requires_auth
 from bson.objectid import ObjectId
-from .errors import AuthError, CreateUserError
+from .errors import AuthError
 import datetime
 from flask import Flask, request, jsonify, _request_ctx_stack
 from flask_cors import cross_origin
@@ -135,14 +135,14 @@ def create_app():
         return response
 
     @app.route("/graphql", methods=["GET"])
-    #@cross_origin(headers=["Content-type", "Authorization"])
-    #@requires_auth(config)
+    @cross_origin(headers=["Content-type", "Authorization"])
+    @requires_auth()
     def graphql_playground():
         return PLAYGROUND_HTML, 200
      
     @app.route("/graphql", methods=["POST"])
-    #@cross_origin(headers=["Content-type", "Authorization"])
-    #@requires_auth(config)
+    @cross_origin(headers=["Content-type", "Authorization"])
+    @requires_auth()
     def graphql_server():
         data = request.get_json()
 
