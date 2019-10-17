@@ -38,12 +38,10 @@ export default ({navigation}) => {
           for (let item of registeredLunches) {
             item.timestamp === formattedTodaysDate && setHasPaid(true);
           }
-        } else {
-          calendar.setDates([]);
         }
       }
     }
-  }, [calendar, called, data, formattedTodaysDate, loading, user]);
+  }, [calendar, called, data, formattedTodaysDate, loading]);
 
   // Recives data from scanner and registers lunch
   useEffect(() => {

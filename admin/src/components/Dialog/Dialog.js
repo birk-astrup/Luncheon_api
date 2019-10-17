@@ -4,8 +4,6 @@ import DELETE_TIMESTAMP from '../../mutations/deleteTimestamp';
 
 import './Dialog.scss';
 
-
-
 export default ({user, setIsOpen}) => {
   const [deleteTimestamp] = useMutation(DELETE_TIMESTAMP, {
     refetchQueries: ['getUsers']
