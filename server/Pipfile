@@ -1,0 +1,19 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+pylint = "*"
+
+[packages]
+ariadne = "*"
+flask = "*"
+environs = "*"
+flask-cors = "*"
+python-jose = {extras = ["pycryptodome"],version = "*"}
+pymongo = {extras = ["srv"],version = "*"}
+gunicorn = "*"
+
+[requires]
+python_version = "3.7"
