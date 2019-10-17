@@ -6830,6 +6830,11 @@ unset-value@^1.0.0:
     has-value "^0.3.1"
     isobject "^3.0.0"
 
+unstated-next-compose@^0.0.5:
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/unstated-next-compose/-/unstated-next-compose-0.0.5.tgz#7d00bddccfd609b64f7beaf9e8d5d1f8fc7ab27c"
+  integrity sha512-9/CHGBvPzvrGAgXxQS70Y7Y4YOlaYgjGO4ScteVhtsLqo3IL6zT70ED+RJng1IvkYCXF4n0LOSJB2hFFyX86yA==
+
 unstated-next@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/unstated-next/-/unstated-next-1.1.0.tgz#7bb4911a12fdf3cc8ad3eb11a0b315e4a8685ea8"

@@ -3,7 +3,7 @@ import {View, StyleSheet, Text} from 'react-native';
 import {Calendar} from 'react-native-calendars';
 import {handleCalendarFormating} from '../utils/calendarUtils';
 
-import DataStore from '../store';
+import {calendarContainer} from '../store';
 
 import style from '../styles/main';
 import CalendarAlert from '../components/CalendarAlert';
@@ -38,15 +38,15 @@ const date = new Date();
 
 export default () => {
   const [calendarDates, setCalendarDates] = useState({});
-  const storage = DataStore.useContainer();
+  const calendar = calendarContainer.useContainer();
 
   useEffect(() => {
-    let dates = storage.dateList;
+    let dates = calendar.dateList;
     if (dates.length > 0) {
       let formatedDates = handleCalendarFormating(dates);
       setCalendarDates(formatedDates);
     }
-  }, [storage.dateList]);
+  }, [calendar]);
 
   return (
     <View style={_style.container}>
@@ -56,7 +56,6 @@ export default () => {
           calendarBackground: 'rgba(0,0,0,0.0)',
           dayTextColor: '#FFFFFF',
           textDisabledColor: '#525252',
-          textDayFontSize: 18,
         }}
         markedDates={calendarDates}
         onDayPress={day => CalendarAlert(day)}

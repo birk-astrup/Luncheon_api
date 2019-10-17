@@ -1,0 +1,30 @@
+$mobile: 37.5em; // 600px
+$tablet: 56.25em; // 900px
+$landscape: 75em; // 1200px
+$desktop: 62.5em;
+
+@mixin query-for($size) {
+    @if $size == mobile {
+        @media only screen and (max-width: $mobile) {
+            @content;
+        }
+    }
+
+    @if $size == tablet {
+        @media only screen and (max-width: $tablet) {
+            @content;
+        }
+    }
+
+    @if $size == landscape {
+        @media only screen and (max-width: $landscape) {
+            @content;
+        }
+    }
+
+    @if $size == desktop {
+        @media only screen and (min-width: $desktop) {
+            @content;
+        }
+    }
+}
