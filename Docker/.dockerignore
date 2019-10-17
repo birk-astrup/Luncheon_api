@@ -1,0 +1,8 @@
+#ENV FILES
+*.env
+
+#PYTHON
+__pycache__/
+
+#VSCODE
+.vscode/

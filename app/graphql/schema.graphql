@@ -1,0 +1,42 @@
+scalar Datetime
+
+
+interface Payload {
+    status: Boolean!
+    error: Error
+}
+
+type Query {
+    user(_id: ID!): UserPayload
+    getUsers: UserPayload
+}
+
+type Mutation {
+    registerLunch(_id: ID!, nickname: String!, email: String!): UserPayload!
+    deleteUser(_id: ID!): UserPayload!
+    deleteTimestamp(user_id: ID!, timestamp_id: ID!): UserPayload!
+}
+
+type User {
+    _id: ID!
+    nickname: String!
+    email: String!
+    registered: [Registered]
+}
+
+type UserPayload implements Payload {
+    status: Boolean!
+    error: Error
+    user: [User]
+}
+
+type Registered {
+    _id: ID!
+    timestamp: String!
+}
+
+type Error {
+    message: String!
+}
+
+
