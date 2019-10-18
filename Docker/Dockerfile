@@ -8,6 +8,8 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
-EXPOSE 80
+RUN useradd -m myuser
 
-CMD ["gunicorn", "-b", "0.0.0.0:80", "-w", "4", "--threads", "4", "wsgi:app"]
+USER myuser
+
+CMD ["gunicorn", "-b", "0.0.0.0:$PORT", "-w", "4", "--threads", "4", "wsgi:app"]
