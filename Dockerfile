@@ -12,4 +12,4 @@ RUN useradd -m myuser
 
 USER myuser
 
-CMD ["gunicorn", "-b", "0.0.0.0:$PORT", "-w", "4", "--threads", "4", "wsgi:app"]
+CMD gunicorn -b 0.0.0.0:$PORT -w 4 --threads 4 wsgi:app
