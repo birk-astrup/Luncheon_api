@@ -12,4 +12,12 @@ RUN useradd -m myuser
 
 USER myuser
 
+ENV MONGO_URI $MONGO_URI
+
+ENV DOMAIN $DOMAIN
+
+ENV AUDIENCE $AUDIENCE
+
+ENV ALGORITHM $ALGORITHM
+
 CMD gunicorn -b 0.0.0.0:$PORT -w 4 --threads 4 wsgi:app
