@@ -11,6 +11,8 @@ docker.env
 
 # DOCKER
 docker-compose.yml
+dev.Dockerfile
+
 # OSX
 #
 .DS_Store
