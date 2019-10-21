@@ -1,16 +1,14 @@
-FROM python:3.7-slim-buster as base
+FROM python:3.7-slim-buster
 
-WORKDIR /luncheon
+COPY requirements.txt /tmp/requirements.txt
 
-COPY requirements.txt .
-
-RUN pip install -r requirements.txt
-
-COPY . .
-
-RUN useradd -m myuser
+RUN pip install -r /tmp/requirements.txt && useradd -m myuser
 
 USER myuser
+
+WORKDIR /opt/luncheon
+
+COPY . .
 
 ENV MONGO_URI $MONGO_URI
 
