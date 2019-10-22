@@ -10,6 +10,7 @@ import app.extensions as ex
 from functools import wraps
 from jose import jwt
 import json
+from pprint import pprint
 import os
 from pymongo import MongoClient
 from urllib.request import urlopen
@@ -45,12 +46,9 @@ def create_app():
         with mongo:
             try:
                 user = map(ex.prepare, mongo.db.users.find({"_id": ObjectId(_id)}))
-                if user is not None:
-                    payload["user"] = user
-                    payload["status"] = True
-                    payload["error"] = None
-
-                print(type(payload))
+                payload["user"] = user
+                payload["status"] = True
+                payload["error"] = None
                 return payload
             except Exception as e:
                 print(e)
@@ -66,13 +64,24 @@ def create_app():
         payload = {"status": status, "error": error}
         with mongo:
             try:
-                users = map(ex.prepare, mongo.db.users.find({}))
-                payload["user"] = users
-                payload["error"] = None
-                payload["status"] = True
+                users = []
+                if mongo.db.users.count_documents({}) > 1:
+                #users = map(ex.prepare, mongo.db.users.find({}))
+                    for user in mongo.db.users.find({}):
+                        ex.prepare(user)
+                        users.append(user)
+                    payload["error"] = None
+                    payload["status"] = True
+                
+                else:
+                    payload["error"]["message"] = "No users in database"
+                    payload["status"] = False
 
-            except Exception: 
-                payload["error"]["message"] = "could not get users"
+                payload["user"] = users
+
+            except Exception as e:
+                print(e)
+                payload["error"]["message"] = "Could not get users"
         
         return payload
     

@@ -14,6 +14,7 @@ flask-cors = "*"
 python-jose = {extras = ["pycryptodome"],version = "*"}
 pymongo = {extras = ["srv"],version = "*"}
 gunicorn = "*"
+six = "*"
 
 [requires]
 python_version = "3.7"

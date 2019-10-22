@@ -18,9 +18,9 @@ type Mutation {
 }
 
 type User {
-    _id: ID!
-    nickname: String!
-    email: String!
+    _id: ID
+    nickname: String
+    email: String
     registered: [Registered]
 }
 
@@ -31,8 +31,8 @@ type UserPayload implements Payload {
 }
 
 type Registered {
-    _id: ID!
-    timestamp: String!
+    _id: ID
+    timestamp: String
 }
 
 type Error {
