@@ -65,7 +65,7 @@ def create_app():
         with mongo:
             try:
                 users = []
-                if mongo.db.users.count_documents({}) > 1:
+                if mongo.db.users.count_documents({}) >= 1:
                 #users = map(ex.prepare, mongo.db.users.find({}))
                     for user in mongo.db.users.find({}):
                         ex.prepare(user)
