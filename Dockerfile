@@ -18,4 +18,4 @@ ENV AUDIENCE $AUDIENCE
 
 ENV ALGORITHM $ALGORITHM
 
-CMD gunicorn -b 0.0.0.0:$PORT -w 4 --threads 4 wsgi:app
+CMD gunicorn -b 0.0.0.0:$PORT -w 4 --threads 4 --log-file gunicorn.log --log-level DEBUG wsgi:app
