@@ -144,13 +144,17 @@ def create_app():
         return response
 
     @app.route("/graphql", methods=["GET"])
-    @cross_origin(origins=["https://jolly-carson-684df7.netlify.com/", "0.0.0.0"], headers=["Content-type", "Authorization"])
+    @cross_origin(
+        send_wildcard=True,
+        headers=["Content-type", "Authorization"])
     @requires_auth()
     def graphql_playground():
         return PLAYGROUND_HTML, 200
 
     @app.route("/graphql", methods=["POST"])
-    @cross_origin(origins=["https://jolly-carson-684df7.netlify.com/", "0.0.0.0"], headers=["Content-type", "Authorization"])
+    @cross_origin(
+        send_wildcard=True,
+        headers=["Content-type", "Authorization"])
     @requires_auth()
     def graphql_server():
         data = request.get_json()
