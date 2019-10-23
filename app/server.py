@@ -1,6 +1,6 @@
 from ariadne import ObjectType, graphql_sync, make_executable_schema, load_schema_from_path, ScalarType
 from ariadne.constants import PLAYGROUND_HTML
-from .auth import requires_auth
+from .auth import requires_auth, requires_scope
 from bson.objectid import ObjectId
 from .errors import AuthError
 import datetime
@@ -146,6 +146,7 @@ def create_app():
     @app.route("/graphql", methods=["GET"])
     @cross_origin(send_wildcard=True, headers=["Content-type", "Authorization"])
     @requires_auth()
+    @requires_scope('developer')
     def graphql_playground():
         return PLAYGROUND_HTML, 200
 
