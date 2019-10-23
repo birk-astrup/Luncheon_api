@@ -1,8 +1,8 @@
-# Luncheon API
+# :fork_and_knife: Luncheon API :fork_and_knife:
 
 ## Introduction
 
-This is the API that serves the Netcompany lunch app. Data is served from a MongoDB cluster to the client with Graphql.
+This is the API that serves the Netcompany lunch app. The application is built with Python Flask with Gunicorn as a Web Service Gateway Interface. Data is served from a MongoDB cluster on MongoDB Atlas to the client with Graphql.
 
 ---
 
@@ -14,9 +14,10 @@ The API can be accessed at: [https://net-lunch.herokuapp.com/graphql](https://ne
 
 ## Prerequisites
 
-To install and run the Luncheon API you need:
+To install and run the Luncheon API locally you need:
 
 * Python version: > 3.7.0
+* Pipenv version: > 2018.11.26
 * Docker version: > 19.0.0
 * A running instance of MongoDB version: > 4.0
   
@@ -41,13 +42,17 @@ ALGORITHM= "This is the algorithm which decrypts the access token from the clien
 MONGO_URI= "This is the MongoDB connection string."
 ```
 
-### MongoDB
+All  environment variables pertaining to Auth0 can be found at the [Auth0 dashboard](https://auth0.com/).
+
+---
+
+## MongoDB
 
 There are several ways to configure MongoDB for this project:
 
 * Install MongoDB locally on your machine.
 
-* Use MongoDB Atlas to use a MongoDB cluster in the cloud.
+* Connect to a MongoDB cluster on [Atlas](https://www.mongodb.com/cloud/atlas).
 
 * Pull a Mongo Docker image from the [Mongo Dockerhub](https://hub.docker.com/_/mongo).
   
@@ -55,15 +60,57 @@ There are several ways to configure MongoDB for this project:
     2. Run the image with `docker run --name mongo mongo:latest`.
     3. The docker container can now be accessed at localhost:27017
 
-#### Working with the database
+### Working with the database
 
-To view your database in Mongo, either install [Mongo Compass](https://www.mongodb.com/download-center/compass) or [Robo 3T](https://robomongo.org/).
+To view your database in Mongo, you can use:
+* [Mongo Compass](https://www.mongodb.com/download-center/compass).
+* [Robo 3T](https://robomongo.org/).
+* Command prompt / terminal.
 
-#### Connect the application to the database
+### Connect the application to the database
 
-Specify the `MONGO_URI` environment variable to connect to application to the database.
+It is easy to connect to the database. Just specify the `MONGO_URI` environment variable.
 
-To connect to a Mongo instance running in a Docker container accessible at localhost:27017:
-    * 
+Here are some examples:
 
+* For a Mongo instance either running on your machine or as a docker container on the default port: `MONGO_URI=mongodb://localhost:27017/`
 
+* To connect to a Mongo database on MongoDB Atlas: `MONGO_URI=mongodb+srv://<username>:<password>@luncheon-bhvg9.gcp.mongodb.net/test?retryWrites=true&w=majority`
+
+---
+
+## Run the Flask application locally
+
+* Clone the repository.
+* Create your own `.env` file from the `example.env` template and place it in the root folder.
+* Specify the empty environment variables in the new `.env` file.
+* In the root folder of the project run: `pipenv install` to create a virtual environment for the project and install dependencies.
+* Run `pipenv run flask run` from the root directory to start the application server.
+
+### Important note
+
+The application is configured to require an access token from the client for the POST and GET routes. To get around this for local development just comment out these lines in `app/server.py`:
+
+```(python)
+
+@app.route("/graphql", methods=["GET"])
+--> #@cross_origin(send_wildcard=True, headers=["Content-type","Authorization"])
+--> #@requires_auth()
+def graphql_playground():
+    return PLAYGROUND_HTML, 200
+
+@app.route("/graphql", methods=["POST"])
+--> #@cross_origin(send_wildcard=True, headers=["Content-type", "Authorization"])
+--> #@requires_auth()
+def graphql_server():
+    data = request.get_json()
+
+    success, result = graphql_sync(
+        schema,
+        data,
+        context_value=None,
+        debug=app.debug
+    )
+    status_code = 200 if success else 400
+    return jsonify(result), status_code
+```
