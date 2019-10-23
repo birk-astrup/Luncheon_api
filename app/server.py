@@ -66,7 +66,6 @@ def create_app():
             try:
                 users = []
                 if mongo.db.users.count_documents({}) >= 1:
-                #users = map(ex.prepare, mongo.db.users.find({}))
                     for user in mongo.db.users.find({}):
                         ex.prepare(user)
                         users.append(user)
@@ -144,15 +143,15 @@ def create_app():
         return response
 
     @app.route("/graphql", methods=["GET"])
-    @cross_origin(send_wildcard=True, headers=["Content-type", "Authorization"])
-    @requires_auth()
-    @requires_scope('developer')
+    #@cross_origin(send_wildcard=True, headers=["Content-type", "Authorization"])
+    #@requires_auth()
+    #@requires_scope('developer')
     def graphql_playground():
         return PLAYGROUND_HTML, 200
 
     @app.route("/graphql", methods=["POST"])
-    @cross_origin(send_wildcard=True, headers=["Content-type", "Authorization"])
-    @requires_auth()
+    #@cross_origin(send_wildcard=True, headers=["Content-type", "Authorization"])
+    #@requires_auth()
     def graphql_server():
         data = request.get_json()
 
