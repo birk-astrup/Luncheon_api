@@ -144,6 +144,7 @@ def create_app():
 
     @app.route("/graphql", methods=["GET"])
     #@cross_origin(send_wildcard=True, headers=["Content-type", "Authorization"])
+    @cross_origin()
     #@requires_auth()
     #@requires_scope('developer')
     def graphql_playground():
@@ -151,6 +152,7 @@ def create_app():
 
     @app.route("/graphql", methods=["POST"])
     #@cross_origin(send_wildcard=True, headers=["Content-type", "Authorization"])
+    @cross_origin()
     #@requires_auth()
     def graphql_server():
         data = request.get_json()
