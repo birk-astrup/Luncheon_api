@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This is the API that serves the Netcompany lunch app. The application is built with Python Flask with Gunicorn as a Web Service Gateway Interface. Data is served from a MongoDB cluster on MongoDB Atlas to the client with Graphql.
+This is the API that serves the Netcompany lunch app. The application is built with Python Flask with Gunicorn as a Web Service Gateway Interface. Data is served from a MongoDB cluster on MongoDB Atlas to the client with GraphQL.
 
 ---
 
@@ -21,6 +21,21 @@ To install and run the Luncheon API locally you need:
 * Docker version: > 19.0.0
 * A running instance of MongoDB version: > 4.0
   
+---
+
+## Technologies
+
+<img src="https://flask.palletsprojects.com/en/1.1.x/_images/flask-logo.png" height="150"/>
+
+This project uses The [flask](https://flask.palletsprojects.com/en/1.1.x/) microframework for server setup.
+
+<br/>
+<br/>
+
+<img src="https://ariadnegraphql.org/docs/assets/logo-vertical.png" height="200"/>
+
+For GraphQL support this project uses [Ariadne](https://ariadnegraphql.org/) which is a Python library for implementing schema-first GraphQL.
+
 ---
 
 ## Environment
@@ -63,6 +78,7 @@ There are several ways to configure MongoDB for this project:
 ### Working with the database
 
 To view your database in Mongo, you can use:
+
 * [Mongo Compass](https://www.mongodb.com/download-center/compass).
 * [Robo 3T](https://robomongo.org/).
 * Command prompt / terminal.
@@ -91,17 +107,17 @@ Here are some examples:
 
 The application is configured to require an access token from the client for the POST and GET routes. To get around this for local development just comment out these lines in `app/server.py`:
 
-```(python)
+```python
 
 @app.route("/graphql", methods=["GET"])
---> #@cross_origin(send_wildcard=True, headers=["Content-type","Authorization"])
---> #@requires_auth()
+#@cross_origin(send_wildcard=True, headers=["Content-type","Authorization"])
+#@requires_auth()
 def graphql_playground():
     return PLAYGROUND_HTML, 200
 
 @app.route("/graphql", methods=["POST"])
---> #@cross_origin(send_wildcard=True, headers=["Content-type", "Authorization"])
---> #@requires_auth()
+#@cross_origin(send_wildcard=True, headers=["Content-type", "Authorization"])
+#@requires_auth()
 def graphql_server():
     data = request.get_json()
 
