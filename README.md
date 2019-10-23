@@ -27,7 +27,7 @@ To install and run the Luncheon API locally you need:
 
 <img src="https://flask.palletsprojects.com/en/1.1.x/_images/flask-logo.png" height="150"/>
 
-This project uses The [flask](https://flask.palletsprojects.com/en/1.1.x/) microframework for server setup.
+This project uses the [flask](https://flask.palletsprojects.com/en/1.1.x/) microframework for server setup.
 
 <br/>
 <br/>
